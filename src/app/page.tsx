@@ -1,69 +1,308 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
+
+interface CarData {
+  // Идентификация
+  mobileId: string;
+  url: string;
+  
+  // Основна информация
+  brand: string;
+  model: string;
+  title: string;
+  price: string;
+  priceEur: string;
+  priceBgn: string;
+  hasVat: boolean;
+  
+  // Местоположение и продавач
+  location: string;
+  sellerType: string;
+  sellerName: string;
+  phone: string;
+  
+  // Статус на обявата
+  lastEdit: string;
+  views: number;
+  priceHistory: Array<{ date: string; price: string }>;
+  
+  // Технически данни
+  productionDate: string;
+  year: string;
+  mileage: string;
+  engine: string;
+  engineVolume: string;
+  power: string;
+  powerKw: string;
+  euroStandard: string;
+  transmission: string;
+  category: string;
+  color: string;
+  vin: string;
+  
+  // Хибрид/Електрически
+  electricRange: string;
+  batteryCapacity: string;
+  
+  // Горива
+  fuelType: string;
+  fuelConsumption: string;
+  
+  // Описание
+  description: string;
+  descriptionRaw: string;
+  
+  // Екстри
+  features: {
+    safety: string[];
+    other: string[];
+    exterior: string[];
+    protection: string[];
+    interior: string[];
+    comfort: string[];
+  };
+  allFeatures: string[];
+  
+  // Снимки
+  images: string[];
+  imageCount: number;
+}
+
+// Helper component for displaying info items
+function InfoItem({ label, value, highlight = false }: { label: string; value: string; highlight?: boolean }) {
+  return (
+    <div className={`border-b border-gray-200 pb-2 ${highlight ? 'bg-blue-50 p-2 rounded' : ''}`}>
+      <dt className="text-sm font-medium text-gray-500">{label}</dt>
+      <dd className={`mt-1 text-sm ${highlight ? 'font-semibold text-blue-900' : 'text-gray-900'}`}>{value}</dd>
+    </div>
+  );
+}
+
+// Section wrapper
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="border-t border-gray-200 pt-6">
+      <h3 className="text-xl font-semibold mb-4 text-gray-800">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
+// Info grid
+function InfoGrid({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {children}
+    </div>
+  );
+}
+
+// Feature category
+function FeatureCategory({ title, features }: { title: string; features: string[] }) {
+  return (
+    <div className="mb-4">
+      <h4 className="text-base font-medium text-gray-700 mb-2">{title} ({features.length})</h4>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+        {features.map((feature, index) => (
+          <div key={index} className="flex items-start">
+            <span className="text-green-600 mr-2 mt-0.5 shrink-0">✓</span>
+            <span className="text-sm text-gray-700">{feature}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function Home() {
+  const [url, setUrl] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [carData, setCarData] = useState<CarData | null>(null);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    setCarData(null);
+
+    try {
+      const response = await fetch('/api/scrape', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || 'Грешка при зареждане на данните');
+        return;
+      }
+
+      setCarData(data);
+    } catch (err) {
+      setError('Грешка при свързване със сървъра');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-gray-50 py-8 px-4">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">SmartDealer</h1>
+          <p className="text-gray-600">Извличане на данни от Mobile.bg обяви</p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Form */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <form onSubmit={handleSubmit}>
+            <div className="mb-4">
+              <label htmlFor="url" className="block text-sm font-medium text-gray-700 mb-2">
+                Mobile.bg URL
+              </label>
+              <input
+                type="text"
+                id="url"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="https://www.mobile.bg/..."
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
+            >
+              {loading ? 'Зареждане...' : 'Зареди обявата'}
+            </button>
+          </form>
         </div>
-      </main>
+
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-8">
+            {error}
+          </div>
+        )}
+
+        {/* Results */}
+        {carData && (
+          <div className="bg-white rounded-lg shadow-md p-6 space-y-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Резултати</h2>
+
+            {/* Идентификация и статус */}
+            <Section title="Идентификация и статус">
+              <InfoGrid>
+                <InfoItem label="Mobile ID" value={carData.mobileId} />
+                <InfoItem label="Марка" value={carData.brand} />
+                <InfoItem label="Модел" value={carData.model} />
+                <InfoItem label="Последна редакция" value={carData.lastEdit} />
+                <InfoItem label="Прегледи" value={carData.views.toString()} />
+              </InfoGrid>
+            </Section>
+
+            {/* Основна информация */}
+            <Section title="Основна информация">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-gray-800">{carData.title}</h3>
+              </div>
+              <InfoGrid>
+                <InfoItem label="Цена" value={carData.price} highlight />
+                <InfoItem label="Цена (EUR)" value={carData.priceEur} />
+                <InfoItem label="Цена (BGN)" value={carData.priceBgn} />
+                <InfoItem label="С ДДС" value={carData.hasVat ? 'Да' : 'Не'} />
+                <InfoItem label="Местоположение" value={carData.location} />
+                <InfoItem label="Продавач" value={carData.sellerType} />
+                {carData.sellerName !== 'Няма данни' && (
+                  <InfoItem label="Име на продавача" value={carData.sellerName} />
+                )}
+                <InfoItem label="Телефон" value={carData.phone} />
+              </InfoGrid>
+            </Section>
+
+            {/* Технически параметри */}
+            <Section title="Технически параметри">
+              <InfoGrid>
+                <InfoItem label="Дата на производство" value={carData.productionDate} />
+                <InfoItem label="Година" value={carData.year} />
+                <InfoItem label="Пробег" value={carData.mileage} />
+                <InfoItem label="Категория" value={carData.category} />
+                <InfoItem label="Цвят" value={carData.color} />
+                <InfoItem label="VIN" value={carData.vin} highlight />
+                <InfoItem label="Двигател" value={carData.engine} />
+                <InfoItem label="Тип гориво" value={carData.fuelType} />
+                <InfoItem label="Мощност" value={carData.power} />
+                <InfoItem label="Мощност (kW)" value={carData.powerKw} />
+                <InfoItem label="Евростандарт" value={carData.euroStandard} />
+                <InfoItem label="Скоростна кутия" value={carData.transmission} />
+                {carData.electricRange !== 'Няма данни' && (
+                  <>
+                    <InfoItem label="Електрически пробег (WLTP)" value={carData.electricRange} />
+                    <InfoItem label="Капацитет на батерията" value={carData.batteryCapacity} />
+                  </>
+                )}
+              </InfoGrid>
+            </Section>
+
+            {/* Description */}
+            {carData.description !== 'Няма данни' && (
+              <Section title="Описание">
+                <p className="text-gray-700 whitespace-pre-wrap">{carData.description}</p>
+              </Section>
+            )}
+
+            {/* Екстри по категории */}
+            {carData.allFeatures.length > 0 && (
+              <Section title={`Екстри (${carData.allFeatures.length})`}>
+                {carData.features.safety.length > 0 && (
+                  <FeatureCategory title="Безопасност" features={carData.features.safety} />
+                )}
+                {carData.features.comfort.length > 0 && (
+                  <FeatureCategory title="Комфорт" features={carData.features.comfort} />
+                )}
+                {carData.features.exterior.length > 0 && (
+                  <FeatureCategory title="Екстериор" features={carData.features.exterior} />
+                )}
+                {carData.features.interior.length > 0 && (
+                  <FeatureCategory title="Интериор" features={carData.features.interior} />
+                )}
+                {carData.features.protection.length > 0 && (
+                  <FeatureCategory title="Защита" features={carData.features.protection} />
+                )}
+                {carData.features.other.length > 0 && (
+                  <FeatureCategory title="Други" features={carData.features.other} />
+                )}
+              </Section>
+            )}
+
+            {/* Images */}
+            {carData.images.length > 0 && (
+              <Section title={`Снимки (${carData.imageCount})`}>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {carData.images.map((image, index) => (
+                    <div key={index} className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                      <img
+                        src={image}
+                        alt={`Снимка ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </Section>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
