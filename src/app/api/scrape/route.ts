@@ -31,12 +31,13 @@ interface CarData {
   year: string; // Година
   mileage: string; // Пробег
   engine: string; // Двигател
-  engineVolume: string; // Обем на двигателя
+  cylinderVolume: string; // Кубатура [куб.см]
   power: string; // Мощност
   powerKw: string; // Мощност в kW
   euroStandard: string; // Евростандарт
   transmission: string; // Скоростна кутия
   category: string; // Категория (Комби, Седан и т.н.)
+  condition: string; // Състояние (Нов/Употребяван/За части)
   color: string; // Цвят
   vin: string; // VIN номер
   
