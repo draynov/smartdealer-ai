@@ -415,42 +415,40 @@ export async function POST(request: NextRequest) {
       carData.description = descText || 'Няма данни';
     }
 
-    // Екстри по категории - Mobile.bg uses .carExtri with .Title and .items
-    const categoriesDebug: string[] = [];
-    $('.carExtri').each((_, section) => {
-      const categoryTitle = $(section).find('.Title').first().text().trim();
-      const items: string[] = [];
+    // Екстри - Mobile.bg shows all features in one list without categories
+    // We'll extract all features and categorize them in the UI based on our master list
+    $('.carExtri .items > div').each((_, item) => {
+      const feature = $(item).text().trim();
+      if (feature) {
+        carData.allFeatures.push(feature);
+      }
+    });
+    
+    // Categorize features based on our master list
+    const {ALL_FEATURES} = await import('../../constants/features');
+    
+    carData.allFeatures.forEach(feature => {
+      const normalized = feature.toLowerCase().trim();
       
-      categoriesDebug.push(categoryTitle); // Track found categories
-      
-      $(section).find('.items > div').each((_, item) => {
-        const feature = $(item).text().trim();
-        if (feature && feature !== categoryTitle) {
-          items.push(feature);
-          carData.allFeatures.push(feature);
-        }
-      });
-
-      // Категоризация - case insensitive
-      const lowerTitle = categoryTitle.toLowerCase();
-      if (lowerTitle.includes('безопасност')) {
-        carData.features.safety = items;
-      } else if (lowerTitle.includes('други')) {
-        carData.features.other = items;
-      } else if (lowerTitle.includes('екстериор')) {
-        carData.features.exterior = items;
-      } else if (lowerTitle.includes('защита')) {
-        carData.features.protection = items;
-      } else if (lowerTitle.includes('интериор')) {
-        carData.features.interior = items;
-      } else if (lowerTitle.includes('комфорт')) {
-        carData.features.comfort = items;
+      // Check which category this feature belongs to
+      if (ALL_FEATURES.safety.some(f => f.toLowerCase().trim() === normalized)) {
+        if (!carData.features.safety.includes(feature)) carData.features.safety.push(feature);
+      } else if (ALL_FEATURES.comfort.some(f => f.toLowerCase().trim() === normalized)) {
+        if (!carData.features.comfort.includes(feature)) carData.features.comfort.push(feature);
+      } else if (ALL_FEATURES.exterior.some(f => f.toLowerCase().trim() === normalized)) {
+        if (!carData.features.exterior.includes(feature)) carData.features.exterior.push(feature);
+      } else if (ALL_FEATURES.interior.some(f => f.toLowerCase().trim() === normalized)) {
+        if (!carData.features.interior.includes(feature)) carData.features.interior.push(feature);
+      } else if (ALL_FEATURES.protection.some(f => f.toLowerCase().trim() === normalized)) {
+        if (!carData.features.protection.includes(feature)) carData.features.protection.push(feature);
+      } else if (ALL_FEATURES.other.some(f => f.toLowerCase().trim() === normalized)) {
+        if (!carData.features.other.includes(feature)) carData.features.other.push(feature);
       }
     });
     
     // Add debug info to response
     (carData as any)._debug = {
-      categoriesFound: categoriesDebug,
+      totalFeatures: carData.allFeatures.length,
       safetyCount: carData.features.safety.length,
       comfortCount: carData.features.comfort.length,
       exteriorCount: carData.features.exterior.length,
