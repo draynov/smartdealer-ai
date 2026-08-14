@@ -381,7 +381,14 @@ export async function POST(request: NextRequest) {
       const src = $(element).attr('src') || $(element).attr('data-src');
       if (src && !src.includes('logo') && !src.includes('icon') && !src.includes('captcha')) {
         // Convert relative URLs to absolute
-        const imageUrl = src.startsWith('http') ? src : `https://www.mobile.bg${src}`;
+        let imageUrl = src;
+        if (src.startsWith('//')) {
+          // Protocol-relative URL
+          imageUrl = `https:${src}`;
+        } else if (!src.startsWith('http')) {
+          // Relative URL
+          imageUrl = `https://www.mobile.bg${src}`;
+        }
         if (!carData.images.includes(imageUrl)) {
           carData.images.push(imageUrl);
         }
@@ -392,7 +399,14 @@ export async function POST(request: NextRequest) {
     $('[data-image], [data-img]').each((_, element) => {
       const src = $(element).attr('data-image') || $(element).attr('data-img');
       if (src) {
-        const imageUrl = src.startsWith('http') ? src : `https://www.mobile.bg${src}`;
+        let imageUrl = src;
+        if (src.startsWith('//')) {
+          // Protocol-relative URL
+          imageUrl = `https:${src}`;
+        } else if (!src.startsWith('http')) {
+          // Relative URL
+          imageUrl = `https://www.mobile.bg${src}`;
+        }
         if (!carData.images.includes(imageUrl)) {
           carData.images.push(imageUrl);
         }

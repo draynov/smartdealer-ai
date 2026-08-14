@@ -291,7 +291,7 @@ export default function Home() {
                   {carData.images.map((image, index) => (
                     <div key={index} className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
                       <img
-                        src={image}
+                        src={`/api/image-proxy?url=${encodeURIComponent(image)}`}
                         alt={`Снимка ${index + 1}`}
                         className="w-full h-full object-cover"
                       />
