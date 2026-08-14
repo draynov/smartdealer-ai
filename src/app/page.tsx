@@ -350,7 +350,7 @@ export default function Home() {
               {(carData as any)._debug && (
                 <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded">
                   <p className="font-semibold text-sm">DEBUG INFO:</p>
-                  <p className="text-xs">Categories found: {(carData as any)._debug.categoriesFound.join(', ')}</p>
+                  <p className="text-xs">Total features: {(carData as any)._debug.totalFeatures}</p>
                   <p className="text-xs">Safety: {(carData as any)._debug.safetyCount}, 
                     Comfort: {(carData as any)._debug.comfortCount}, 
                     Exterior: {(carData as any)._debug.exteriorCount}, 
