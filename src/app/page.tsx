@@ -66,7 +66,8 @@ interface CarData {
   allFeatures: string[];
   
   // Снимки
-  images: string[];
+  images: string[]; // Full-size versions
+  thumbnails: string[]; // Small versions for grid
   imageCount: number;
 }
 
@@ -340,14 +341,14 @@ export default function Home() {
             {carData.images.length > 0 && (
               <Section title={`Снимки (${carData.imageCount})`}>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {carData.images.map((image, index) => (
+                  {carData.thumbnails.map((thumbnail, index) => (
                     <div 
                       key={index} 
                       className="aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
                       onClick={() => setSelectedImage(index)}
                     >
                       <img
-                        src={`/api/image-proxy?url=${encodeURIComponent(image)}`}
+                        src={`/api/image-proxy?url=${encodeURIComponent(thumbnail)}`}
                         alt={`Снимка ${index + 1}`}
                         className="w-full h-full object-cover"
                       />

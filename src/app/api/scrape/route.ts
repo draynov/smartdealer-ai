@@ -67,7 +67,8 @@ interface CarData {
   allFeatures: string[];
   
   // Снимки
-  images: string[];
+  images: string[]; // Full-size versions
+  thumbnails: string[]; // Small versions for grid
   imageCount: number;
 }
 
@@ -169,6 +170,7 @@ export async function POST(request: NextRequest) {
       
       // Снимки
       images: [],
+      thumbnails: [],
       imageCount: 0,
     };
 
@@ -447,16 +449,25 @@ export async function POST(request: NextRequest) {
       const src = $(element).attr('src') || $(element).attr('data-src');
       if (src && !src.includes('logo') && !src.includes('icon') && !src.includes('captcha')) {
         // Convert relative URLs to absolute
-        let imageUrl = src;
+        let thumbnailUrl = src;
         if (src.startsWith('//')) {
           // Protocol-relative URL
-          imageUrl = `https:${src}`;
+          thumbnailUrl = `https:${src}`;
         } else if (!src.startsWith('http')) {
           // Relative URL
-          imageUrl = `https://www.mobile.bg${src}`;
+          thumbnailUrl = `https://www.mobile.bg${src}`;
         }
-        if (!carData.images.includes(imageUrl)) {
-          carData.images.push(imageUrl);
+        
+        // Convert thumbnail to full-size:
+        // FROM: //mobistatic4.focus.bg/mobile/photosorg/529/1/11786020793638529_WW.webp
+        // TO:   //mobistatic4.focus.bg/mobile/photos/529/1/11786020793638529.webp
+        let fullSizeUrl = thumbnailUrl
+          .replace('/photosorg/', '/photos/')
+          .replace(/(_[A-Za-z0-9]{2})\.(webp|jpg|jpeg|png)$/i, '.$2');
+        
+        if (!carData.thumbnails.includes(thumbnailUrl)) {
+          carData.thumbnails.push(thumbnailUrl);
+          carData.images.push(fullSizeUrl);
         }
       }
     });
