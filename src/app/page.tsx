@@ -158,6 +158,11 @@ export default function Home() {
   const [carData, setCarData] = useState<CarData | null>(null);
   const [error, setError] = useState('');
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
+  
+  // Import to database state
+  const [saving, setSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState<{ vehicleId: string; isNew: boolean } | null>(null);
+  const [saveError, setSaveError] = useState('');
 
   // Close modal with ESC key
   useEffect(() => {
@@ -182,6 +187,8 @@ export default function Home() {
     setLoading(true);
     setError('');
     setCarData(null);
+    setSaveSuccess(null);
+    setSaveError('');
 
     try {
       const response = await fetch('/api/scrape', {
@@ -204,6 +211,40 @@ export default function Home() {
       setError('Грешка при свързване със сървъра');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!carData) return;
+    
+    setSaving(true);
+    setSaveError('');
+    setSaveSuccess(null);
+
+    try {
+      const response = await fetch('/api/import-vehicle', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url: carData.url }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setSaveError(data.error || 'Грешка при записване в базата');
+        return;
+      }
+
+      setSaveSuccess({
+        vehicleId: data.vehicleId,
+        isNew: data.isNew,
+      });
+    } catch (err) {
+      setSaveError('Грешка при свързване със сървъра');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -254,12 +295,46 @@ export default function Home() {
         {carData && (
           <div className="bg-white rounded-lg shadow-md p-6 space-y-8">
             <div className="mb-6">
-              <h1 className="text-3xl font-bold text-gray-900">
-                {carData.brand} {carData.model}
-              </h1>
-              <p className="text-xl text-gray-600 mt-2">
-                {carData.modification}
-              </p>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <h1 className="text-3xl font-bold text-gray-900">
+                    {carData.brand} {carData.model}
+                  </h1>
+                  <p className="text-xl text-gray-600 mt-2">
+                    {carData.modification}
+                  </p>
+                </div>
+                <button
+                  onClick={handleSave}
+                  disabled={saving || !!saveSuccess}
+                  className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium flex items-center gap-2 whitespace-nowrap"
+                >
+                  {saving ? (
+                    <>⏳ Записване...</>
+                  ) : saveSuccess ? (
+                    <>✓ Записано</>
+                  ) : (
+                    <>💾 Запази в база</>
+                  )}
+                </button>
+              </div>
+              
+              {/* Save Success Message */}
+              {saveSuccess && (
+                <div className="mt-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+                  <p className="font-semibold">
+                    {saveSuccess.isNew ? '✓ Автомобилът е записан в базата!' : '✓ Автомобилът е актуализиран!'}
+                  </p>
+                  <p className="text-sm mt-1">Vehicle ID: {saveSuccess.vehicleId}</p>
+                </div>
+              )}
+              
+              {/* Save Error Message */}
+              {saveError && (
+                <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                  ✗ {saveError}
+                </div>
+              )}
             </div>
 
             {/* Идентификация и статус */}
