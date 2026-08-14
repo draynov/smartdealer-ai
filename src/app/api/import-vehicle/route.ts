@@ -4,6 +4,18 @@ import { carDataToVehicle, carDataToImages, carDataToFeatures } from '@/lib/mapp
 
 export async function POST(request: NextRequest) {
   try {
+    // Check env vars first
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      console.error('Missing Supabase env vars:', {
+        url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+        key: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.substring(0, 20) + '...'
+      });
+      return NextResponse.json(
+        { error: 'Server configuration error: Missing Supabase credentials' },
+        { status: 500 }
+      );
+    }
+
     const { url } = await request.json();
 
     if (!url || !url.includes('mobile.bg')) {
