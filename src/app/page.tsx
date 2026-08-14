@@ -111,7 +111,42 @@ function FeatureCategory({
   allPossibleFeatures: string[]; 
   availableFeatures: string[] 
 }) {
-  const availableCount = availableFeatures.length;
+  // Normalize function for better matching
+  const normalize = (str: string) => {
+    return str
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, ' ')
+      .replace(/\\+/g, '')
+      .replace(/\//g, '')
+      .replace(/\(/g, '')
+      .replace(/\)/g, '')
+      .replace(/,/g, '');
+  };
+  
+  // Count how many from allPossibleFeatures are actually available
+  const matchedFeatures = allPossibleFeatures.filter(feature => {
+    const normalizedFeature = normalize(feature);
+    return availableFeatures.some(af => {
+      const normalizedAf = normalize(af);
+      // Check if they match or contain each other's key parts
+      if (normalizedAf === normalizedFeature) return true;
+      if (normalizedAf.includes(normalizedFeature)) return true;
+      if (normalizedFeature.includes(normalizedAf)) return true;
+      
+      // Check key word overlap for complex features
+      const featureWords = normalizedFeature.split(' ').filter(w => w.length > 3);
+      const afWords = normalizedAf.split(' ').filter(w => w.length > 3);
+      if (featureWords.length > 0 && afWords.length > 0) {
+        const overlap = featureWords.filter(w => afWords.includes(w)).length;
+        return overlap >= Math.min(featureWords.length, afWords.length);
+      }
+      
+      return false;
+    });
+  });
+  
+  const availableCount = matchedFeatures.length;
   const totalCount = allPossibleFeatures.length;
   
   return (
@@ -121,10 +156,22 @@ function FeatureCategory({
       </h4>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
         {allPossibleFeatures.map((feature, index) => {
-          const hasFeature = availableFeatures.some(af => 
-            af.toLowerCase().includes(feature.toLowerCase()) || 
-            feature.toLowerCase().includes(af.toLowerCase())
-          );
+          const normalizedFeature = normalize(feature);
+          const hasFeature = availableFeatures.some(af => {
+            const normalizedAf = normalize(af);
+            if (normalizedAf === normalizedFeature) return true;
+            if (normalizedAf.includes(normalizedFeature)) return true;
+            if (normalizedFeature.includes(normalizedAf)) return true;
+            
+            const featureWords = normalizedFeature.split(' ').filter(w => w.length > 3);
+            const afWords = normalizedAf.split(' ').filter(w => w.length > 3);
+            if (featureWords.length > 0 && afWords.length > 0) {
+              const overlap = featureWords.filter(w => afWords.includes(w)).length;
+              return overlap >= Math.min(featureWords.length, afWords.length);
+            }
+            
+            return false;
+          });
           
           return (
             <div key={index} className="flex items-start">
