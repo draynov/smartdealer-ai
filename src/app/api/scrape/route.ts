@@ -416,9 +416,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Екстри по категории - Mobile.bg uses .carExtri with .Title and .items
+    const categoriesDebug: string[] = [];
     $('.carExtri').each((_, section) => {
       const categoryTitle = $(section).find('.Title').first().text().trim();
       const items: string[] = [];
+      
+      categoriesDebug.push(categoryTitle); // Track found categories
       
       $(section).find('.items > div').each((_, item) => {
         const feature = $(item).text().trim();
@@ -428,21 +431,33 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      // Категоризация
-      if (categoryTitle.includes('Безопасност')) {
+      // Категоризация - case insensitive
+      const lowerTitle = categoryTitle.toLowerCase();
+      if (lowerTitle.includes('безопасност')) {
         carData.features.safety = items;
-      } else if (categoryTitle.includes('Други')) {
+      } else if (lowerTitle.includes('други')) {
         carData.features.other = items;
-      } else if (categoryTitle.includes('Екстериор')) {
+      } else if (lowerTitle.includes('екстериор')) {
         carData.features.exterior = items;
-      } else if (categoryTitle.includes('Защита')) {
+      } else if (lowerTitle.includes('защита')) {
         carData.features.protection = items;
-      } else if (categoryTitle.includes('Интериор')) {
+      } else if (lowerTitle.includes('интериор')) {
         carData.features.interior = items;
-      } else if (categoryTitle.includes('Комфорт')) {
+      } else if (lowerTitle.includes('комфорт')) {
         carData.features.comfort = items;
       }
     });
+    
+    // Add debug info to response
+    (carData as any)._debug = {
+      categoriesFound: categoriesDebug,
+      safetyCount: carData.features.safety.length,
+      comfortCount: carData.features.comfort.length,
+      exteriorCount: carData.features.exterior.length,
+      interiorCount: carData.features.interior.length,
+      protectionCount: carData.features.protection.length,
+      otherCount: carData.features.other.length,
+    };
 
     // Images - extract both thumbnails and full-size versions
     // Get thumbnails from gallery and convert to full-size URLs
