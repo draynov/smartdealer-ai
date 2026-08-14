@@ -66,12 +66,16 @@ export interface VehicleImage {
   created_at: string;
 }
 
+export interface Feature {
+  id: number;
+  name: string;
+  category: 'safety' | 'comfort' | 'exterior' | 'interior' | 'protection' | 'other';
+}
+
 export interface VehicleFeature {
   id: string;
   vehicle_id: string;
-  category: 'safety' | 'comfort' | 'exterior' | 'interior' | 'protection' | 'other';
-  name: string;
-  is_selected: boolean;
+  feature_id: number;
   created_at: string;
 }
 

@@ -131,68 +131,29 @@ export function carDataToImages(carData: CarData, vehicleId: string): VehicleIma
 
 /**
  * Convert scraped features to VehicleFeature insert format
+ * @param carData - Scraped car data
+ * @param vehicleId - Vehicle UUID
+ * @param featureLookup - Map of feature name -> feature id
  */
-export function carDataToFeatures(carData: CarData, vehicleId: string): VehicleFeatureInsert[] {
+export function carDataToFeatures(
+  carData: CarData, 
+  vehicleId: string,
+  featureLookup: Map<string, number>
+): VehicleFeatureInsert[] {
   const features: VehicleFeatureInsert[] = [];
   
-  // Safety features
-  carData.features.safety.forEach(name => {
-    features.push({
-      vehicle_id: vehicleId,
-      category: 'safety',
-      name: name,
-      is_selected: true,
-    });
-  });
-  
-  // Comfort features
-  carData.features.comfort.forEach(name => {
-    features.push({
-      vehicle_id: vehicleId,
-      category: 'comfort',
-      name: name,
-      is_selected: true,
-    });
-  });
-  
-  // Exterior features
-  carData.features.exterior.forEach(name => {
-    features.push({
-      vehicle_id: vehicleId,
-      category: 'exterior',
-      name: name,
-      is_selected: true,
-    });
-  });
-  
-  // Interior features
-  carData.features.interior.forEach(name => {
-    features.push({
-      vehicle_id: vehicleId,
-      category: 'interior',
-      name: name,
-      is_selected: true,
-    });
-  });
-  
-  // Protection features
-  carData.features.protection.forEach(name => {
-    features.push({
-      vehicle_id: vehicleId,
-      category: 'protection',
-      name: name,
-      is_selected: true,
-    });
-  });
-  
-  // Other features
-  carData.features.other.forEach(name => {
-    features.push({
-      vehicle_id: vehicleId,
-      category: 'other',
-      name: name,
-      is_selected: true,
-    });
+  // Loop through all scraped features and find their IDs
+  carData.allFeatures.forEach(featureName => {
+    const featureId = featureLookup.get(featureName);
+    
+    if (featureId) {
+      features.push({
+        vehicle_id: vehicleId,
+        feature_id: featureId,
+      });
+    } else {
+      console.warn(`Feature not found in lookup: "${featureName}"`);
+    }
   });
   
   return features;

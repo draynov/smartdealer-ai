@@ -46,6 +46,24 @@ export async function POST(request: NextRequest) {
 
     const dealerId = dealers.id;
 
+    // Step 2.5: Fetch all features for lookup
+    const { data: allFeatures, error: featuresError } = await supabase
+      .from('features')
+      .select('id, name');
+
+    if (featuresError || !allFeatures) {
+      return NextResponse.json(
+        { error: 'Failed to load features from database' },
+        { status: 500 }
+      );
+    }
+
+    // Create feature name -> id lookup map
+    const featureLookup = new Map<string, number>();
+    allFeatures.forEach(f => {
+      featureLookup.set(f.name, f.id);
+    });
+
     // Step 3: Check if vehicle with this mobile_id already exists
     const { data: existingVehicle, error: checkError } = await supabase
       .from('vehicles')
@@ -117,7 +135,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 5: Insert features
-    const features = carDataToFeatures(carData, vehicleId);
+    const features = carDataToFeatures(carData, vehicleId, featureLookup);
     if (features.length > 0) {
       const { error: featuresError } = await supabase
         .from('vehicle_features')
