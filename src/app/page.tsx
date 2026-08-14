@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface CarData {
   // Идентификация
@@ -121,6 +121,25 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [carData, setCarData] = useState<CarData | null>(null);
   const [error, setError] = useState('');
+  const [selectedImage, setSelectedImage] = useState<number | null>(null);
+
+  // Close modal with ESC key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && selectedImage !== null) {
+        setSelectedImage(null);
+      }
+      if (e.key === 'ArrowLeft' && selectedImage !== null && selectedImage > 0) {
+        setSelectedImage(selectedImage - 1);
+      }
+      if (e.key === 'ArrowRight' && selectedImage !== null && carData && selectedImage < carData.images.length - 1) {
+        setSelectedImage(selectedImage + 1);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedImage, carData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -219,14 +238,9 @@ export default function Home() {
               </div>
             </Section>
 
-            {/* Основна информация */}
-            <Section title="Основна информация">
+            {/* Обща информация */}
+            <Section title="Обща информация">
               <InfoGrid>
-                <InfoItem 
-                  label="Цена (EUR)" 
-                  value={`${carData.priceEur} ${carData.hasVat ? 'с ДДС' : 'без ДДС'}`} 
-                  highlight 
-                />
                 <InfoItem label="Последна редакция" value={carData.lastEdit} />
                 <InfoItem label="Прегледи" value={carData.views.toString()} />
                 <InfoItem label="Местоположение" value={carData.location} />
@@ -235,6 +249,11 @@ export default function Home() {
                   <InfoItem label="Име на продавача" value={carData.sellerName} />
                 )}
                 <InfoItem label="Телефон" value={carData.phone} />
+                <InfoItem 
+                  label="Цена (EUR)" 
+                  value={`${carData.priceEur} ${carData.hasVat ? 'с ДДС' : 'без ДДС'}`} 
+                  highlight 
+                />
               </InfoGrid>
             </Section>
 
@@ -322,7 +341,11 @@ export default function Home() {
               <Section title={`Снимки (${carData.imageCount})`}>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {carData.images.map((image, index) => (
-                    <div key={index} className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                    <div 
+                      key={index} 
+                      className="aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+                      onClick={() => setSelectedImage(index)}
+                    >
                       <img
                         src={`/api/image-proxy?url=${encodeURIComponent(image)}`}
                         alt={`Снимка ${index + 1}`}
@@ -332,6 +355,58 @@ export default function Home() {
                   ))}
                 </div>
               </Section>
+            )}
+
+            {/* Image Modal */}
+            {selectedImage !== null && carData && (
+              <div 
+                className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+                onClick={() => setSelectedImage(null)}
+              >
+                <button
+                  className="absolute top-4 right-4 text-white text-4xl hover:text-gray-300 z-10"
+                  onClick={() => setSelectedImage(null)}
+                >
+                  ×
+                </button>
+                
+                {/* Previous button */}
+                {selectedImage > 0 && (
+                  <button
+                    className="absolute left-4 text-white text-4xl hover:text-gray-300 z-10"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedImage(selectedImage - 1);
+                    }}
+                  >
+                    ‹
+                  </button>
+                )}
+                
+                {/* Next button */}
+                {selectedImage < carData.images.length - 1 && (
+                  <button
+                    className="absolute right-4 text-white text-4xl hover:text-gray-300 z-10"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedImage(selectedImage + 1);
+                    }}
+                  >
+                    ›
+                  </button>
+                )}
+                
+                <div className="max-w-7xl max-h-full" onClick={(e) => e.stopPropagation()}>
+                  <img
+                    src={`/api/image-proxy?url=${encodeURIComponent(carData.images[selectedImage])}`}
+                    alt={`Снимка ${selectedImage + 1}`}
+                    className="max-w-full max-h-[90vh] object-contain"
+                  />
+                  <p className="text-white text-center mt-4">
+                    Снимка {selectedImage + 1} от {carData.images.length}
+                  </p>
+                </div>
+              </div>
             )}
           </div>
         )}
