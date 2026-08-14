@@ -340,11 +340,15 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Description - look for text in specific sections
-    const descSection = $('.obyava, .obq, [class*="dopInfo"], [class*="info"]').first();
-    if (descSection.length > 0) {
-      carData.descriptionRaw = descSection.text().trim();
-      carData.description = carData.descriptionRaw || 'Няма данни';
+    // Description - "Допълнителна информация" section
+    const moreInfoSection = $('.moreInfo').first();
+    if (moreInfoSection.length > 0) {
+      // Get the full text content
+      let descText = moreInfoSection.text().trim();
+      // Remove the "Допълнителна информация" heading if present
+      descText = descText.replace(/^Допълнителна информация\s*/i, '').trim();
+      carData.descriptionRaw = descText;
+      carData.description = descText || 'Няма данни';
     }
 
     // Екстри по категории - Mobile.bg uses .carExtri with .Title and .items
