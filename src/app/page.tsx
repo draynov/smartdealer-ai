@@ -347,19 +347,6 @@ export default function Home() {
 
             {/* Екстри по категории - показва всички възможни екстри */}
             <Section title={`Екстри (${carData.allFeatures.length} от ${Object.values(ALL_FEATURES).flat().length})`}>
-              {(carData as any)._debug && (
-                <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded">
-                  <p className="font-semibold text-sm">DEBUG INFO:</p>
-                  <p className="text-xs">Total features: {(carData as any)._debug.totalFeatures}</p>
-                  <p className="text-xs">Safety: {(carData as any)._debug.safetyCount}, 
-                    Comfort: {(carData as any)._debug.comfortCount}, 
-                    Exterior: {(carData as any)._debug.exteriorCount}, 
-                    Interior: {(carData as any)._debug.interiorCount}, 
-                    Protection: {(carData as any)._debug.protectionCount}, 
-                    Other: {(carData as any)._debug.otherCount}
-                  </p>
-                </div>
-              )}
               <FeatureCategory 
                 title={CATEGORY_NAMES.safety}
                 allPossibleFeatures={ALL_FEATURES.safety} 

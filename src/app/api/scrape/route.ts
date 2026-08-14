@@ -445,17 +445,6 @@ export async function POST(request: NextRequest) {
         if (!carData.features.other.includes(feature)) carData.features.other.push(feature);
       }
     });
-    
-    // Add debug info to response
-    (carData as any)._debug = {
-      totalFeatures: carData.allFeatures.length,
-      safetyCount: carData.features.safety.length,
-      comfortCount: carData.features.comfort.length,
-      exteriorCount: carData.features.exterior.length,
-      interiorCount: carData.features.interior.length,
-      protectionCount: carData.features.protection.length,
-      otherCount: carData.features.other.length,
-    };
 
     // Images - extract both thumbnails and full-size versions
     // Get thumbnails from gallery and convert to full-size URLs
