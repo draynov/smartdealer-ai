@@ -444,26 +444,26 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Images - only from the ad gallery, not from similar ads or banners
+    // Images - extract both thumbnails and full-size versions
+    // Get thumbnails from gallery and convert to full-size URLs
     $('.smallPicturesGallery img, #pictures_moving_details_small img').each((_, element) => {
       const src = $(element).attr('src') || $(element).attr('data-src');
       if (src && !src.includes('logo') && !src.includes('icon') && !src.includes('captcha')) {
         // Convert relative URLs to absolute
         let thumbnailUrl = src;
         if (src.startsWith('//')) {
-          // Protocol-relative URL
           thumbnailUrl = `https:${src}`;
         } else if (!src.startsWith('http')) {
-          // Relative URL
           thumbnailUrl = `https://www.mobile.bg${src}`;
         }
         
-        // Convert thumbnail to full-size:
-        // FROM: //mobistatic4.focus.bg/mobile/photosorg/529/1/11786020793638529_WW.webp
-        // TO:   //mobistatic4.focus.bg/mobile/photos/529/1/11786020793638529.webp
-        let fullSizeUrl = thumbnailUrl
-          .replace('/photosorg/', '/photos/')
-          .replace(/(_[A-Za-z0-9]{2})\.(webp|jpg|jpeg|png)$/i, '.$2');
+        // Try to find corresponding full-size image or convert URL
+        // FROM: https://mobistatic4.focus.bg/mobile/photosorg/529/1/11786020793638529_WW.webp
+        // TO:   https://mobistatic4.focus.bg/mobile/photosorg/529/1/big1/11786020793638529_WW.webp
+        // Just add /big1/ before the filename
+        const parts = thumbnailUrl.split('/');
+        const filename = parts.pop();
+        const fullSizeUrl = parts.join('/') + '/big1/' + filename;
         
         if (!carData.thumbnails.includes(thumbnailUrl)) {
           carData.thumbnails.push(thumbnailUrl);

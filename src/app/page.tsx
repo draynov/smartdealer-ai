@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { ALL_FEATURES, CATEGORY_NAMES } from './constants/features';
 
 interface CarData {
   // Идентификация
@@ -100,18 +101,42 @@ function InfoGrid({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Feature category
-function FeatureCategory({ title, features }: { title: string; features: string[] }) {
+// Feature category - shows all possible features with has/missing indication
+function FeatureCategory({ 
+  title, 
+  allPossibleFeatures, 
+  availableFeatures 
+}: { 
+  title: string; 
+  allPossibleFeatures: string[]; 
+  availableFeatures: string[] 
+}) {
+  const availableCount = availableFeatures.length;
+  const totalCount = allPossibleFeatures.length;
+  
   return (
-    <div className="mb-4">
-      <h4 className="text-base font-medium text-gray-700 mb-2">{title} ({features.length})</h4>
+    <div className="mb-6">
+      <h4 className="text-base font-medium text-gray-700 mb-3">
+        {title} ({availableCount}/{totalCount})
+      </h4>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-        {features.map((feature, index) => (
-          <div key={index} className="flex items-start">
-            <span className="text-green-600 mr-2 mt-0.5 shrink-0">✓</span>
-            <span className="text-sm text-gray-700">{feature}</span>
-          </div>
-        ))}
+        {allPossibleFeatures.map((feature, index) => {
+          const hasFeature = availableFeatures.some(af => 
+            af.toLowerCase().includes(feature.toLowerCase()) || 
+            feature.toLowerCase().includes(af.toLowerCase())
+          );
+          
+          return (
+            <div key={index} className="flex items-start">
+              <span className={`mr-2 mt-0.5 shrink-0 ${hasFeature ? 'text-green-600' : 'text-gray-300'}`}>
+                {hasFeature ? '✓' : '✗'}
+              </span>
+              <span className={`text-sm ${hasFeature ? 'text-gray-700' : 'text-gray-400'}`}>
+                {feature}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -313,32 +338,42 @@ export default function Home() {
               </Section>
             )}
 
-            {/* Екстри по категории */}
-            {carData.allFeatures.length > 0 && (
-              <Section title={`Екстри (${carData.allFeatures.length})`}>
-                {carData.features.safety.length > 0 && (
-                  <FeatureCategory title="Безопасност" features={carData.features.safety} />
-                )}
-                {carData.features.comfort.length > 0 && (
-                  <FeatureCategory title="Комфорт" features={carData.features.comfort} />
-                )}
-                {carData.features.exterior.length > 0 && (
-                  <FeatureCategory title="Екстериор" features={carData.features.exterior} />
-                )}
-                {carData.features.interior.length > 0 && (
-                  <FeatureCategory title="Интериор" features={carData.features.interior} />
-                )}
-                {carData.features.protection.length > 0 && (
-                  <FeatureCategory title="Защита" features={carData.features.protection} />
-                )}
-                {carData.features.other.length > 0 && (
-                  <FeatureCategory title="Други" features={carData.features.other} />
-                )}
-              </Section>
-            )}
+            {/* Екстри по категории - показва всички възможни екстри */}
+            <Section title={`Екстри (${carData.allFeatures.length} от ${Object.values(ALL_FEATURES).flat().length})`}>
+              <FeatureCategory 
+                title={CATEGORY_NAMES.safety}
+                allPossibleFeatures={ALL_FEATURES.safety} 
+                availableFeatures={carData.features.safety} 
+              />
+              <FeatureCategory 
+                title={CATEGORY_NAMES.comfort}
+                allPossibleFeatures={ALL_FEATURES.comfort} 
+                availableFeatures={carData.features.comfort} 
+              />
+              <FeatureCategory 
+                title={CATEGORY_NAMES.exterior}
+                allPossibleFeatures={ALL_FEATURES.exterior} 
+                availableFeatures={carData.features.exterior} 
+              />
+              <FeatureCategory 
+                title={CATEGORY_NAMES.interior}
+                allPossibleFeatures={ALL_FEATURES.interior} 
+                availableFeatures={carData.features.interior} 
+              />
+              <FeatureCategory 
+                title={CATEGORY_NAMES.protection}
+                allPossibleFeatures={ALL_FEATURES.protection} 
+                availableFeatures={carData.features.protection} 
+              />
+              <FeatureCategory 
+                title={CATEGORY_NAMES.other}
+                allPossibleFeatures={ALL_FEATURES.other} 
+                availableFeatures={carData.features.other} 
+              />
+            </Section>
 
             {/* Images */}
-            {carData.images.length > 0 && (
+            {carData.images.length > 0 && carData.thumbnails && carData.thumbnails.length > 0 && (
               <Section title={`Снимки (${carData.imageCount})`}>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {carData.thumbnails.map((thumbnail, index) => (
