@@ -229,28 +229,36 @@ export default function Home() {
               </InfoGrid>
             </Section>
 
-            {/* Технически параметри */}
-            <Section title="Технически параметри">
+            {/* Основни характеристики - 6-те важни полета */}
+            <Section title="Основни характеристики">
               <InfoGrid>
                 <InfoItem label="Дата на производство" value={carData.productionDate} />
+                <InfoItem label="Двигател" value={carData.engine} />
+                <InfoItem label="Мощност" value={carData.power} />
+                <InfoItem label="Евростандарт" value={carData.euroStandard} />
+                <InfoItem label="Скоростна кутия" value={carData.transmission} />
+                <InfoItem label="Пробег [км]" value={carData.mileage} />
+              </InfoGrid>
+            </Section>
+
+            {/* Технически детайли - останалите данни */}
+            <Section title="Технически детайли">
+              <div className="space-y-2">
                 <InfoItem label="Година" value={carData.year} />
-                <InfoItem label="Пробег" value={carData.mileage} />
                 <InfoItem label="Категория" value={carData.category} />
                 <InfoItem label="Цвят" value={carData.color} />
                 <InfoItem label="VIN" value={carData.vin} highlight />
-                <InfoItem label="Двигател" value={carData.engine} />
                 <InfoItem label="Тип гориво" value={carData.fuelType} />
-                <InfoItem label="Мощност" value={carData.power} />
+                <InfoItem label="Обем на двигателя" value={carData.engineVolume} />
                 <InfoItem label="Мощност (kW)" value={carData.powerKw} />
-                <InfoItem label="Евростандарт" value={carData.euroStandard} />
-                <InfoItem label="Скоростна кутия" value={carData.transmission} />
+                <InfoItem label="Разход на гориво" value={carData.fuelConsumption} />
                 {carData.electricRange !== 'Няма данни' && (
                   <>
                     <InfoItem label="Електрически пробег (WLTP)" value={carData.electricRange} />
                     <InfoItem label="Капацитет на батерията" value={carData.batteryCapacity} />
                   </>
                 )}
-              </InfoGrid>
+              </div>
             </Section>
 
             {/* Description */}
