@@ -338,13 +338,6 @@ export default function Home() {
               </div>
             </Section>
 
-            {/* Description */}
-            {carData.description !== 'Няма данни' && (
-              <Section title="Описание">
-                <p className="text-gray-700 whitespace-pre-wrap">{carData.description}</p>
-              </Section>
-            )}
-
             {/* Екстри по категории - показва всички възможни екстри */}
             <Section title={`Екстри (${carData.allFeatures.length} от ${Object.values(ALL_FEATURES).flat().length})`}>
               <FeatureCategory 
@@ -378,6 +371,13 @@ export default function Home() {
                 availableFeatures={carData.features.other} 
               />
             </Section>
+
+            {/* Description */}
+            {carData.description !== 'Няма данни' && (
+              <Section title="Описание">
+                <p className="text-gray-700 whitespace-pre-wrap">{carData.description}</p>
+              </Section>
+            )}
 
             {/* Images */}
             {carData.images.length > 0 && carData.thumbnails && carData.thumbnails.length > 0 && (
