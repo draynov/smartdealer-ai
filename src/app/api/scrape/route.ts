@@ -380,29 +380,11 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Images
-    $('img[src*="mobile"], .gallery img, .adv-gallery img, .advGallery img, img[src*="photosorg"]').each((_, element) => {
+    // Images - only from the ad gallery, not from similar ads or banners
+    $('.smallPicturesGallery img, #pictures_moving_details_small img').each((_, element) => {
       const src = $(element).attr('src') || $(element).attr('data-src');
       if (src && !src.includes('logo') && !src.includes('icon') && !src.includes('captcha')) {
         // Convert relative URLs to absolute
-        let imageUrl = src;
-        if (src.startsWith('//')) {
-          // Protocol-relative URL
-          imageUrl = `https:${src}`;
-        } else if (!src.startsWith('http')) {
-          // Relative URL
-          imageUrl = `https://www.mobile.bg${src}`;
-        }
-        if (!carData.images.includes(imageUrl)) {
-          carData.images.push(imageUrl);
-        }
-      }
-    });
-
-    // Also check for images in data attributes or background images
-    $('[data-image], [data-img]').each((_, element) => {
-      const src = $(element).attr('data-image') || $(element).attr('data-img');
-      if (src) {
         let imageUrl = src;
         if (src.startsWith('//')) {
           // Protocol-relative URL
