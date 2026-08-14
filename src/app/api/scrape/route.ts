@@ -9,10 +9,10 @@ interface CarData {
   // Основна информация
   brand: string;
   model: string;
+  modification: string;
   title: string;
   price: string;
   priceEur: string;
-  priceBgn: string;
   hasVat: boolean;
   
   // Местоположение и продавач
@@ -111,10 +111,10 @@ export async function POST(request: NextRequest) {
       // Основна информация
       brand: 'Няма данни',
       model: 'Няма данни',
+      modification: 'Няма данни',
       title: 'Няма данни',
       price: 'Няма данни',
       priceEur: 'Няма данни',
-      priceBgn: 'Няма данни',
       hasVat: false,
       
       // Местоположение и продавач
@@ -133,12 +133,13 @@ export async function POST(request: NextRequest) {
       year: 'Няма данни',
       mileage: 'Няма данни',
       engine: 'Няма данни',
-      engineVolume: 'Няма данни',
+      cylinderVolume: 'Няма данни',
       power: 'Няма данни',
       powerKw: 'Няма данни',
       euroStandard: 'Няма данни',
       transmission: 'Няма данни',
       category: 'Няма данни',
+      condition: 'Няма данни',
       color: 'Няма данни',
       vin: 'Няма данни',
       
@@ -181,19 +182,39 @@ export async function POST(request: NextRequest) {
       carData.mobileId = obavaMatch[1];
     }
 
-    // Title - Mobile.bg uses h1 without specific class
+    // Title - Mobile.bg uses h1 with specific structure:
+    // h1 contains: "Brand Model" as text node + span with modification
     const titleElement = $('h1').first();
     if (titleElement.length > 0) {
-      let title = titleElement.text().trim();
-      // Remove "Обява: ID" part if present
-      title = title.replace(/Обява:\s*\d+/g, '').trim();
-      if (title) {
-        carData.title = title;
-        // Опит да извлечем марка и модел от заглавието
-        const parts = title.split(' ');
+      // Get full title from h1 text (includes everything)
+      let fullTitle = titleElement.text().trim();
+      fullTitle = fullTitle.replace(/Обява:\s*\d+/g, '').trim();
+      carData.title = fullTitle;
+
+      // Extract brand + model from h1 text node (before span)
+      const h1Html = titleElement.html() || '';
+      const textBeforeSpan = h1Html.split('<span')[0].trim();
+      if (textBeforeSpan) {
+        // Split brand and model - first word (or hyphenated phrase) is brand
+        const parts = textBeforeSpan.split(' ');
         if (parts.length >= 2) {
-          carData.brand = parts[0];
-          carData.model = parts.slice(1).join(' ');
+          // Handle brands like "Mercedes-Benz" (with hyphen)
+          if (parts[0].includes('-')) {
+            carData.brand = parts[0];
+            carData.model = parts.slice(1).join(' ');
+          } else {
+            carData.brand = parts[0];
+            carData.model = parts.slice(1).join(' ');
+          }
+        }
+      }
+
+      // Extract modification from span inside h1
+      const modificationSpan = titleElement.find('span').first();
+      if (modificationSpan.length > 0) {
+        const modification = modificationSpan.text().trim();
+        if (modification) {
+          carData.modification = modification;
         }
       }
     }
@@ -209,17 +230,11 @@ export async function POST(request: NextRequest) {
       if (eurMatch) {
         carData.priceEur = eurMatch[1].trim();
       }
-      
-      // Извличане на цена в BGN ако има
-      const bgnMatch = priceText.match(/([\d\s]+)\s*лв/);
-      if (bgnMatch) {
-        carData.priceBgn = bgnMatch[1].trim();
-      }
     }
     
-    // Проверка за ДДС
-    const vatInfo = $('.PriceInfo').first().text();
-    if (vatInfo.includes('ДДС') || vatInfo.includes('включено')) {
+    // Проверка за ДДС - в същата секция с цената
+    const vatInfo = $('.PriceInfo, .Price').text();
+    if (vatInfo.includes('ДДС') || vatInfo.includes('с включено ДДС') || vatInfo.includes('включено')) {
       carData.hasVat = true;
     }
 
@@ -247,8 +262,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Последна редакция и прегледи
-    const statsText = $('.statistiki .text').first().text();
-    const editMatch = statsText.match(/(\d{1,2}:\d{2}.*?\d{4}.*?г\.)/);
+    const statsText = $('.statistiki, .statistiki .text').first().text();
+    const editMatch = statsText.match(/Редактирана\s+в\s+(\d{1,2}:\d{2}\s+часа\s+на\s+\d{2}\.\d{2}\.\d{4})/i);
     if (editMatch) {
       carData.lastEdit = editMatch[1];
     }
@@ -287,7 +302,17 @@ export async function POST(request: NextRequest) {
           carData.power = value;
           // Извличане на kW ако има
           const kwMatch = value.match(/(\d+)\s*kW/i);
-          if (kwMatch) carData.powerKw = kwMatch[1] + ' kW';
+          if (kwMatch) {
+            carData.powerKw = kwMatch[1] + ' kW';
+          } else {
+            // Конвертиране от к.с. в kW ако няма kW в текста
+            const hpMatch = value.match(/(\d+)\s*к\.с\./i);
+            if (hpMatch) {
+              const hp = parseInt(hpMatch[1]);
+              const kw = Math.round(hp * 0.7355); // 1 к.с. = 0.7355 kW
+              carData.powerKw = kw + ' kW';
+            }
+          }
         } 
         // Скоростна кутия
         else if (label.includes('Скоростна') || label.includes('кутия')) {
@@ -300,6 +325,18 @@ export async function POST(request: NextRequest) {
         // Категория
         else if (label.includes('Категория')) {
           carData.category = value;
+        }
+        // Кубатура [куб.см]
+        else if (label.includes('Кубатура') || label.includes('куб.см')) {
+          carData.cylinderVolume = value;
+        }
+        // Състояние
+        else if (label.includes('Състояние')) {
+          carData.condition = value;
+        }
+        // Модификация
+        else if (label.includes('Модификация')) {
+          carData.modification = value;
         }
         // Електрически пробег
         else if (label.includes('едно зареждане') || label.includes('WLTP')) {
@@ -324,17 +361,41 @@ export async function POST(request: NextRequest) {
             carData.color = value;
           } else if (label.includes('VIN')) {
             carData.vin = value;
+          } else if (label.includes('Категория')) {
+            carData.category = value;
           } else if (label.includes('Дата на производство') && carData.productionDate === 'Няма данни') {
             carData.productionDate = value;
             if (carData.year === 'Няма данни') carData.year = value;
-          } else if (label.includes('Пробег') && carData.mileage === 'Няма данни') {
+          } else if (label.includes('Пробег') && !label.includes('зареждане') && carData.mileage === 'Няма данни') {
             carData.mileage = value;
           } else if (label.includes('Двигател') && carData.engine === 'Няма данни') {
             carData.engine = value;
           } else if (label.includes('Мощност') && carData.power === 'Няма данни') {
             carData.power = value;
+            // Конвертиране от к.с. в kW ако powerKw все още е "Няма данни"
+            if (carData.powerKw === 'Няма данни') {
+              const kwMatch = value.match(/(\d+)\s*kW/i);
+              if (kwMatch) {
+                carData.powerKw = kwMatch[1] + ' kW';
+              } else {
+                const hpMatch = value.match(/(\d+)\s*к\.с\./i);
+                if (hpMatch) {
+                  const hp = parseInt(hpMatch[1]);
+                  const kw = Math.round(hp * 0.7355);
+                  carData.powerKw = kw + ' kW';
+                }
+              }
+            }
           } else if (label.includes('Скоростна') && carData.transmission === 'Няма данни') {
             carData.transmission = value;
+          } else if (label.includes('едно зареждане') || label.includes('WLTP')) {
+            carData.electricRange = value;
+          } else if (label.includes('Капацитет на батерията')) {
+            carData.batteryCapacity = value;
+          } else if (label.includes('Състояние')) {
+            carData.condition = value;
+          } else if (label.includes('Кубатура') || label.includes('куб.см')) {
+            carData.cylinderVolume = value;
           }
         }
       }

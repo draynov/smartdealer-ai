@@ -10,10 +10,10 @@ interface CarData {
   // Основна информация
   brand: string;
   model: string;
+  modification: string;
   title: string;
   price: string;
   priceEur: string;
-  priceBgn: string;
   hasVat: boolean;
   
   // Местоположение и продавач
@@ -32,12 +32,13 @@ interface CarData {
   year: string;
   mileage: string;
   engine: string;
-  engineVolume: string;
+  cylinderVolume: string;
   power: string;
   powerKw: string;
   euroStandard: string;
   transmission: string;
   category: string;
+  condition: string;
   color: string;
   vin: string;
   
@@ -197,7 +198,14 @@ export default function Home() {
         {/* Results */}
         {carData && (
           <div className="bg-white rounded-lg shadow-md p-6 space-y-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Резултати</h2>
+            <div className="mb-6">
+              <h1 className="text-3xl font-bold text-gray-900">
+                {carData.brand} {carData.model}
+              </h1>
+              <p className="text-xl text-gray-600 mt-2">
+                {carData.modification}
+              </p>
+            </div>
 
             {/* Идентификация и статус */}
             <Section title="Идентификация и статус">
@@ -205,21 +213,22 @@ export default function Home() {
                 <InfoItem label="Mobile ID" value={carData.mobileId} />
                 <InfoItem label="Марка" value={carData.brand} />
                 <InfoItem label="Модел" value={carData.model} />
-                <InfoItem label="Последна редакция" value={carData.lastEdit} />
-                <InfoItem label="Прегледи" value={carData.views.toString()} />
               </InfoGrid>
+              <div className="mt-4">
+                <InfoItem label="Модификация" value={carData.modification} />
+              </div>
             </Section>
 
             {/* Основна информация */}
             <Section title="Основна информация">
-              <div className="mb-4">
-                <h3 className="text-lg font-semibold text-gray-800">{carData.title}</h3>
-              </div>
               <InfoGrid>
-                <InfoItem label="Цена" value={carData.price} highlight />
-                <InfoItem label="Цена (EUR)" value={carData.priceEur} />
-                <InfoItem label="Цена (BGN)" value={carData.priceBgn} />
-                <InfoItem label="С ДДС" value={carData.hasVat ? 'Да' : 'Не'} />
+                <InfoItem 
+                  label="Цена (EUR)" 
+                  value={`${carData.priceEur} ${carData.hasVat ? 'с ДДС' : 'без ДДС'}`} 
+                  highlight 
+                />
+                <InfoItem label="Последна редакция" value={carData.lastEdit} />
+                <InfoItem label="Прегледи" value={carData.views.toString()} />
                 <InfoItem label="Местоположение" value={carData.location} />
                 <InfoItem label="Продавач" value={carData.sellerType} />
                 {carData.sellerName !== 'Няма данни' && (
@@ -243,20 +252,36 @@ export default function Home() {
 
             {/* Технически детайли - останалите данни */}
             <Section title="Технически детайли">
-              <div className="space-y-2">
-                <InfoItem label="Година" value={carData.year} />
-                <InfoItem label="Категория" value={carData.category} />
-                <InfoItem label="Цвят" value={carData.color} />
-                <InfoItem label="VIN" value={carData.vin} highlight />
-                <InfoItem label="Тип гориво" value={carData.fuelType} />
-                <InfoItem label="Обем на двигателя" value={carData.engineVolume} />
-                <InfoItem label="Мощност (kW)" value={carData.powerKw} />
-                <InfoItem label="Разход на гориво" value={carData.fuelConsumption} />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {carData.category !== 'Няма данни' && (
+                  <InfoItem label="Категория" value={carData.category} />
+                )}
+                {carData.condition !== 'Няма данни' && (
+                  <InfoItem label="Състояние" value={carData.condition} />
+                )}
+                {carData.color !== 'Няма данни' && (
+                  <InfoItem label="Цвят" value={carData.color} />
+                )}
+                {carData.cylinderVolume !== 'Няма данни' && (
+                  <InfoItem label="Кубатура [куб.см]" value={carData.cylinderVolume} />
+                )}
+                {carData.fuelType !== 'Няма данни' && (
+                  <InfoItem label="Тип гориво" value={carData.fuelType} />
+                )}
+                {carData.powerKw !== 'Няма данни' && (
+                  <InfoItem label="Мощност (kW)" value={carData.powerKw} />
+                )}
+                {carData.fuelConsumption !== 'Няма данни' && (
+                  <InfoItem label="Разход на гориво" value={carData.fuelConsumption} />
+                )}
                 {carData.electricRange !== 'Няма данни' && (
-                  <>
-                    <InfoItem label="Електрически пробег (WLTP)" value={carData.electricRange} />
-                    <InfoItem label="Капацитет на батерията" value={carData.batteryCapacity} />
-                  </>
+                  <InfoItem label="Електрически пробег (WLTP)" value={carData.electricRange} />
+                )}
+                {carData.batteryCapacity !== 'Няма данни' && (
+                  <InfoItem label="Капацитет на батерията" value={carData.batteryCapacity} />
+                )}
+                {carData.vin !== 'Няма данни' && (
+                  <InfoItem label="VIN" value={carData.vin} highlight />
                 )}
               </div>
             </Section>
