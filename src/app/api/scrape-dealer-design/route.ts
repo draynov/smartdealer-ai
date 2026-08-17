@@ -69,6 +69,35 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // If no logo found in img tags, search in HTML for logo asset files
+    if (!logoUrl) {
+      // Search for logo files in the HTML content (React apps often have them as assets)
+      const logoPatterns = [
+        /href="([^"]*logo[^"]*\.(?:png|jpg|jpeg|svg|webp)[^"]*)"/gi,
+        /src="([^"]*logo[^"]*\.(?:png|jpg|jpeg|svg|webp)[^"]*)"/gi,
+        /\/assets\/logo[^"'\s]*\.(?:png|jpg|jpeg|svg|webp)/gi,
+      ];
+
+      for (const pattern of logoPatterns) {
+        const matches = html.match(pattern);
+        if (matches && matches.length > 0) {
+          // Extract the URL from the first match
+          let match = matches[0];
+          // Remove quotes and extract path
+          match = match.replace(/(?:href|src)="|"/g, '');
+          
+          if (match.startsWith('/')) {
+            logoUrl = `${parsedUrl.origin}${match}`;
+          } else if (!match.startsWith('http')) {
+            logoUrl = `${parsedUrl.origin}/${match}`;
+          } else {
+            logoUrl = match;
+          }
+          break;
+        }
+      }
+    }
+
     // Extract primary color from meta theme-color
     let primaryColor = '#2563eb'; // Default blue
     let secondaryColor = ''; // For sites with multiple colors
