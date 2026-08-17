@@ -174,58 +174,56 @@ export default function CarDetailPage() {
           Назад към списъка
         </Link>
 
+        {/* Title - H1 най-горе */}
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            {vehicle.title}
+          </h1>
+          {vehicle.version && (
+            <p className="text-lg text-gray-600">{vehicle.version}</p>
+          )}
+        </div>
+
         {/* Main Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Images + Main Info */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Gallery */}
+            {/* Gallery - Голяма снимка + thumbnails */}
             {images.length > 0 && (
               <div className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-xl font-semibold mb-4">Снимки ({images.length})</h2>
-                <div className="grid grid-cols-4 gap-2">
+                {/* Large Image */}
+                <div className="mb-4">
+                  <img
+                    src={`/api/image-proxy?url=${encodeURIComponent(selectedImage || images[0]?.large_url || '')}`}
+                    alt={vehicle.title}
+                    className="w-full h-96 object-cover rounded-lg cursor-pointer"
+                    onClick={() => setSelectedImage(images[0]?.large_url || '')}
+                  />
+                </div>
+
+                {/* Thumbnails */}
+                <div className="grid grid-cols-6 gap-2">
                   {images.map((img) => (
                     <button
                       key={img.id}
                       onClick={() => setSelectedImage(img.large_url)}
-                      className="aspect-video bg-gray-100 rounded overflow-hidden hover:opacity-75 transition"
+                      className={`aspect-video bg-gray-100 rounded overflow-hidden hover:opacity-75 transition ${
+                        selectedImage === img.large_url ? 'ring-2 ring-blue-600' : ''
+                      }`}
                     >
                       <img
-                        src={img.thumbnail_url}
+                        src={`/api/image-proxy?url=${encodeURIComponent(img.thumbnail_url)}`}
                         alt={`Снимка ${img.position}`}
                         className="w-full h-full object-cover"
                       />
                     </button>
                   ))}
                 </div>
+                <p className="mt-2 text-sm text-gray-500 text-center">
+                  {images.length} {images.length === 1 ? 'снимка' : 'снимки'}
+                </p>
               </div>
             )}
-
-            {/* Title */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                {vehicle.title}
-              </h1>
-              {vehicle.version && (
-                <p className="text-lg text-gray-600">{vehicle.version}</p>
-              )}
-            </div>
-
-            {/* Price */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-baseline gap-3">
-                <span className="text-4xl font-bold text-blue-600">
-                  {vehicle.price_eur?.toLocaleString('bg-BG') || '-'} €
-                </span>
-                {vehicle.price_bgn && (
-                  <span className="text-xl text-gray-500">
-                    ({vehicle.price_bgn.toLocaleString('bg-BG')} лв)
-                  </span>
-                )}
-              </div>
-              {vehicle.vat_info && (
-                <p className="mt-2 text-sm text-gray-600">{vehicle.vat_info}</p>
-              )}
-            </div>
 
             {/* Main Characteristics */}
             <div className="bg-white rounded-lg shadow p-6">
@@ -337,6 +335,24 @@ export default function CarDetailPage() {
 
           {/* Right Column - Sidebar */}
           <div className="space-y-6">
+            {/* Price - най-горе в sidebar */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-xl font-semibold mb-3">Цена</h2>
+              <div className="flex items-baseline gap-3 mb-2">
+                <span className="text-4xl font-bold text-blue-600">
+                  {vehicle.price_eur?.toLocaleString('bg-BG') || '-'} €
+                </span>
+              </div>
+              {vehicle.price_bgn && (
+                <p className="text-lg text-gray-600">
+                  {vehicle.price_bgn.toLocaleString('bg-BG')} лв
+                </p>
+              )}
+              {vehicle.vat_info && (
+                <p className="mt-2 text-sm text-gray-600">{vehicle.vat_info}</p>
+              )}
+            </div>
+
             {/* Seller Info */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold mb-4">Информация</h2>
