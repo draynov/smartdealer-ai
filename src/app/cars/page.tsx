@@ -16,6 +16,7 @@ interface Vehicle {
   fuel_type: string;
   power_hp: string;
   created_at: string;
+  vehicle_images?: VehicleImage[];
 }
 
 interface VehicleImage {
@@ -37,7 +38,13 @@ export default function CarsPage() {
       setLoading(true);
       const { data, error } = await supabase
         .from('vehicles')
-        .select('*')
+        .select(`
+          *,
+          vehicle_images (
+            thumbnail_url,
+            position
+          )
+        `)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -107,47 +114,64 @@ export default function CarsPage() {
 
         {/* Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {vehicles.map((vehicle) => (
-            <Link
-              key={vehicle.id}
-              href={`/cars/${vehicle.id}`}
-              className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow overflow-hidden"
-            >
-              {/* Placeholder image */}
-              <div className="bg-gray-200 h-48 flex items-center justify-center text-gray-400">
-                Без снимка
-              </div>
+          {vehicles.map((vehicle) => {
+            // Get first image (position = 1 or first in array)
+            const firstImage = vehicle.vehicle_images?.find(img => img.position === 1) 
+              || vehicle.vehicle_images?.[0];
+            const thumbnailUrl = firstImage?.thumbnail_url;
 
-              {/* Content */}
-              <div className="p-4">
-                <h3 className="font-semibold text-lg text-gray-900 truncate">
-                  {vehicle.title || `${vehicle.make} ${vehicle.model}`}
-                </h3>
-                
-                <div className="mt-2 space-y-1 text-sm text-gray-600">
-                  {vehicle.year && (
-                    <p>{vehicle.year}</p>
-                  )}
-                  {vehicle.mileage && (
-                    <p>{vehicle.mileage}</p>
-                  )}
-                  {vehicle.fuel_type && vehicle.power_hp && (
-                    <p>{vehicle.fuel_type}, {vehicle.power_hp}</p>
-                  )}
-                </div>
-
-                {vehicle.price_eur && (
-                  <p className="mt-3 text-xl font-bold text-blue-600">
-                    {vehicle.price_eur.toLocaleString('bg-BG')} €
-                  </p>
+            return (
+              <Link
+                key={vehicle.id}
+                href={`/cars/${vehicle.id}`}
+                className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow overflow-hidden"
+              >
+                {/* Image */}
+                {thumbnailUrl ? (
+                  <div className="relative h-48 bg-gray-200">
+                    <img
+                      src={`/api/image-proxy?url=${encodeURIComponent(thumbnailUrl)}`}
+                      alt={vehicle.title || `${vehicle.make} ${vehicle.model}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="bg-gray-200 h-48 flex items-center justify-center text-gray-400">
+                    Без снимка
+                  </div>
                 )}
 
-                <p className="mt-2 text-xs text-gray-400">
-                  ID: {vehicle.mobile_id}
-                </p>
-              </div>
-            </Link>
-          ))}
+                {/* Content */}
+                <div className="p-4">
+                  <h3 className="font-semibold text-lg text-gray-900 truncate">
+                    {vehicle.title || `${vehicle.make} ${vehicle.model}`}
+                  </h3>
+                  
+                  <div className="mt-2 space-y-1 text-sm text-gray-600">
+                    {vehicle.year && (
+                      <p>{vehicle.year}</p>
+                    )}
+                    {vehicle.mileage && (
+                      <p>{vehicle.mileage}</p>
+                    )}
+                    {vehicle.fuel_type && vehicle.power_hp && (
+                      <p>{vehicle.fuel_type}, {vehicle.power_hp}</p>
+                    )}
+                  </div>
+
+                  {vehicle.price_eur && (
+                    <p className="mt-3 text-xl font-bold text-blue-600">
+                      {vehicle.price_eur.toLocaleString('bg-BG')} €
+                    </p>
+                  )}
+
+                  <p className="mt-2 text-xs text-gray-400">
+                    ID: {vehicle.mobile_id}
+                  </p>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </div>
     </div>
