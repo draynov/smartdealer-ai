@@ -137,10 +137,16 @@ function FeatureCategory({
           );
           
           return (
-            <div key={index} className="flex items-start">
-              <span className={`mr-2 mt-0.5 shrink-0 ${hasFeature ? 'text-green-600' : 'text-gray-300'}`}>
-                {hasFeature ? '✓' : '✗'}
-              </span>
+            <div key={index} className="flex items-start gap-2">
+              {hasFeature ? (
+                <svg className="h-4 w-4 text-green-600 mt-0.5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg className="h-4 w-4 text-gray-300 mt-0.5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              )}
               <span className={`text-sm ${hasFeature ? 'text-gray-700' : 'text-gray-400'}`}>
                 {feature}
               </span>
@@ -310,11 +316,27 @@ export default function Home() {
                   className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium flex items-center gap-2 whitespace-nowrap"
                 >
                   {saving ? (
-                    <>⏳ Записване...</>
+                    <>
+                      <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Записване...
+                    </>
                   ) : saveSuccess ? (
-                    <>✓ Записано</>
+                    <>
+                      <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                      Записано
+                    </>
                   ) : (
-                    <>💾 Запази в база</>
+                    <>
+                      <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M17 16v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-7a2 2 0 012-2h2m3-4H9a2 2 0 00-2 2v7a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-1m-1 4l-3 3m0 0l-3-3m3 3V3" />
+                      </svg>
+                      Запази в база
+                    </>
                   )}
                 </button>
               </div>
@@ -322,8 +344,11 @@ export default function Home() {
               {/* Save Success Message */}
               {saveSuccess && (
                 <div className="mt-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
-                  <p className="font-semibold">
-                    {saveSuccess.isNew ? '✓ Автомобилът е записан в базата!' : '✓ Автомобилът е актуализиран!'}
+                  <p className="font-semibold flex items-center gap-2">
+                    <svg className="h-5 w-5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    {saveSuccess.isNew ? 'Автомобилът е записан в базата!' : 'Автомобилът е актуализиран!'}
                   </p>
                   <p className="text-sm mt-1">Vehicle ID: {saveSuccess.vehicleId}</p>
                 </div>
@@ -331,8 +356,11 @@ export default function Home() {
               
               {/* Save Error Message */}
               {saveError && (
-                <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                  ✗ {saveError}
+                <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2">
+                  <svg className="h-5 w-5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  {saveError}
                 </div>
               )}
             </div>
