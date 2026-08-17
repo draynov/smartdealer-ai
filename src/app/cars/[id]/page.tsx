@@ -135,12 +135,6 @@ export default function CarDetailPage() {
     return features.some(f => f.name === featureName);
   };
 
-  // Handle branding preview
-  // Check if feature is selected
-  const hasFeature = (featureName: string) => {
-    return features.some(f => f.name === featureName);
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
