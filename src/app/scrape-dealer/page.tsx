@@ -118,26 +118,22 @@ export default function ScrapeDealerPage() {
             {/* Summary */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold mb-4">Резултат</h2>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex-1">
                   <p className="text-sm text-gray-500">Dealer</p>
                   <p className="font-medium">{result.dealerSlug}</p>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-500">Открити обяви</p>
-                  <p className="font-medium text-blue-600 text-2xl">{result.totalFound}</p>
+                <div className="flex-1">
+                  <p className="text-sm text-gray-500">Listing URL</p>
+                  <a 
+                    href={result.listingUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline text-sm break-all"
+                  >
+                    {result.listingUrl}
+                  </a>
                 </div>
-              </div>
-              <div className="mt-4">
-                <p className="text-sm text-gray-500">Listing URL</p>
-                <a 
-                  href={result.listingUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline break-all"
-                >
-                  {result.listingUrl}
-                </a>
               </div>
             </div>
 
@@ -156,39 +152,43 @@ export default function ScrapeDealerPage() {
                           <span className="text-gray-400 font-medium">{index + 1}</span>
                         </div>
 
-                        {/* Thumbnail */}
+                        {/* Thumbnail - BIGGER */}
                         {listing.thumbnailUrl && (
                           <div className="flex-shrink-0">
                             <img 
                               src={listing.thumbnailUrl} 
                               alt={listing.title || 'Car'}
-                              className="w-20 h-16 object-cover rounded"
+                              className="w-32 h-24 object-cover rounded"
                             />
                           </div>
                         )}
 
-                        {/* Info */}
-                        <div className="flex-1 min-w-0">
+                        {/* Info - 3 rows */}
+                        <div className="flex-1 min-w-0 flex flex-col justify-center">
                           {listing.title && (
-                            <p className="font-medium text-gray-900 truncate mb-1">
+                            <p className="font-semibold text-gray-900 mb-1">
                               {listing.title}
                             </p>
                           )}
                           {listing.price && (
-                            <p className="text-blue-600 font-semibold mb-1">
+                            <p className="text-blue-600 font-semibold text-lg mb-1">
                               {listing.price}
                             </p>
                           )}
-                          <p className="text-xs text-gray-500 mb-1">
+                          <p className="text-xs text-gray-500">
                             Mobile ID: {listing.mobileId}
                           </p>
+                        </div>
+
+                        {/* Link */}
+                        <div className="flex-shrink-0">
                           <a 
                             href={listing.url} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="text-xs text-blue-600 hover:underline break-all"
+                            className="text-sm text-blue-600 hover:underline"
                           >
-                            {listing.url}
+                            Виж обява
                           </a>
                         </div>
                       </div>
