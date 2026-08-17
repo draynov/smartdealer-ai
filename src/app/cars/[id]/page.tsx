@@ -426,20 +426,6 @@ export default function CarDetailPage() {
               </div>
             </div>
 
-            {/* Branding Preview Button */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold mb-4">DEMO Брандинг</h2>
-              <Link
-                href={`/cars/${vehicleId}/preview`}
-                className="block w-full bg-purple-600 text-white text-center py-2 rounded hover:bg-purple-700 transition"
-              >
-                Преглед с брандинг на дилър
-              </Link>
-              <p className="text-xs text-gray-500 text-center mt-2">
-                Вижте как би изглеждала обявата в дизайна на вашия сайт
-              </p>
-            </div>
-
             {/* Links */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold mb-4">Линкове</h2>
