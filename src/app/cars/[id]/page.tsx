@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { ALL_FEATURES, CATEGORY_NAMES } from '@/app/constants/features';
@@ -61,7 +61,6 @@ interface Feature {
 
 export default function CarDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const vehicleId = params.id as string;
 
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
@@ -70,12 +69,6 @@ export default function CarDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  
-  // Branding preview states
-  const [showBrandingModal, setShowBrandingModal] = useState(false);
-  const [dealerUrl, setDealerUrl] = useState('');
-  const [brandingLoading, setBrandingLoading] = useState(false);
-  const [brandingError, setBrandingError] = useState('');
 
   useEffect(() => {
     if (vehicleId) {
@@ -143,45 +136,9 @@ export default function CarDetailPage() {
   };
 
   // Handle branding preview
-  const handleBrandingPreview = async () => {
-    if (!dealerUrl.trim()) {
-      setBrandingError('Моля въведете URL на сайта');
-      return;
-    }
-
-    try {
-      setBrandingLoading(true);
-      setBrandingError('');
-
-      // Call API to scrape dealer design
-      const response = await fetch('/api/scrape-dealer-design', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url: dealerUrl }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to scrape dealer design');
-      }
-
-      const data = await response.json();
-
-      // Redirect to preview page with branding params
-      const params = new URLSearchParams({
-        logo: data.logoUrl || '',
-        color: data.primaryColor || '#2563eb',
-        dealerName: data.dealerName || 'Dealer',
-      });
-
-      router.push(`/preview/${vehicleId}?${params.toString()}`);
-    } catch (err) {
-      console.error('Branding preview error:', err);
-      setBrandingError('Грешка при зареждане на дизайна. Проверете URL-а.');
-    } finally {
-      setBrandingLoading(false);
-    }
+  // Check if feature is selected
+  const hasFeature = (featureName: string) => {
+    return features.some(f => f.name === featureName);
   };
 
   if (loading) {
@@ -478,12 +435,12 @@ export default function CarDetailPage() {
             {/* Branding Preview Button */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold mb-4">DEMO Брандинг</h2>
-              <button
-                onClick={() => setShowBrandingModal(true)}
+              <Link
+                href={`/cars/${vehicleId}/preview`}
                 className="block w-full bg-purple-600 text-white text-center py-2 rounded hover:bg-purple-700 transition"
               >
                 Преглед с брандинг на дилър
-              </button>
+              </Link>
               <p className="text-xs text-gray-500 text-center mt-2">
                 Вижте как би изглеждала обявата в дизайна на вашия сайт
               </p>
@@ -535,69 +492,6 @@ export default function CarDetailPage() {
             alt="Голяма снимка"
             className="max-w-full max-h-full object-contain"
           />
-        </div>
-      )}
-
-      {/* Branding Preview Modal */}
-      {showBrandingModal && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
-          onClick={() => setShowBrandingModal(false)}
-        >
-          <div
-            className="bg-white rounded-lg shadow-xl max-w-md w-full p-6"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-semibold">Преглед с брандинг</h3>
-              <button
-                onClick={() => setShowBrandingModal(false)}
-                className="text-gray-400 hover:text-gray-600 text-2xl"
-              >
-                ×
-              </button>
-            </div>
-
-            <p className="text-gray-600 mb-4">
-              Въведете URL на сайта на дилъра за да видите как би изглеждала обявата в неговия дизайн.
-            </p>
-
-            <div className="mb-4">
-              <label htmlFor="dealer-url" className="block text-sm font-medium text-gray-700 mb-2">
-                URL на сайта
-              </label>
-              <input
-                id="dealer-url"
-                type="url"
-                placeholder="https://example.com"
-                value={dealerUrl}
-                onChange={(e) => setDealerUrl(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
-            </div>
-
-            {brandingError && (
-              <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded">
-                {brandingError}
-              </div>
-            )}
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowBrandingModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition"
-              >
-                Отказ
-              </button>
-              <button
-                onClick={handleBrandingPreview}
-                disabled={brandingLoading}
-                className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition disabled:opacity-50"
-              >
-                {brandingLoading ? 'Зареждане...' : 'Генерирай'}
-              </button>
-            </div>
-          </div>
         </div>
       )}
     </div>
