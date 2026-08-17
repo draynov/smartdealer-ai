@@ -56,42 +56,43 @@ export async function POST(request: NextRequest) {
 
     const listings: CarListing[] = [];
 
-    // TODO: Find the correct selector - needs research!
-    // This is a placeholder - will need to inspect actual HTML
-    
-    // Common patterns to try:
-    // Option 1: Direct links
-    $('a[href*="/obiavi/"]').each((_, el) => {
-      const href = $(el).attr('href');
-      if (!href || !href.includes('-id')) return;
+    // Extract listings from .ads2023 .item elements
+    $('.ads2023 .item').each((_, item) => {
+      const $item = $(item);
 
-      // Extract mobile ID from URL
-      // Example: /obiavi/mercedes-c-300-id11786020793638529
-      const idMatch = href.match(/id(\d+)/);
-      if (!idMatch) return;
+      // Get mobile ID from item id attribute (format: "ida11783775713682917")
+      const itemId = $item.attr('id');
+      if (!itemId || !itemId.startsWith('ida')) return;
+      
+      const mobileId = itemId.replace('ida', '');
 
-      const mobileId = idMatch[1];
-      const fullUrl = href.startsWith('http') 
-        ? href 
-        : `https://${dealerSlug}.mobile.bg${href}`;
+      // Get URL and title from .title link
+      const titleLink = $item.find('a.title').first();
+      const url = titleLink.attr('href');
+      const title = titleLink.text().trim();
 
-      // Try to get title (might be in link text or nearby element)
-      const title = $(el).text().trim() || $(el).find('h2, h3, .title').text().trim();
+      if (!url || !title) return;
 
-      // Try to get price (might be nearby)
-      const priceElement = $(el).find('.price, .Price').first();
-      const price = priceElement.text().trim();
+      // Get price
+      const priceDiv = $item.find('.price div').first();
+      const price = priceDiv.text().trim();
 
-      // Try to get thumbnail
-      const imgElement = $(el).find('img').first();
-      const thumbnailUrl = imgElement.attr('src') || imgElement.attr('data-src');
+      // Get thumbnail image
+      const img = $item.find('img.pic').first();
+      const thumbnailUrl = img.attr('src');
+
+      // Ensure full URL
+      const fullUrl = url.startsWith('http') ? url : `https://${dealerSlug}.mobile.bg${url}`;
+      const fullThumbnail = thumbnailUrl && !thumbnailUrl.startsWith('http') 
+        ? `https:${thumbnailUrl}` 
+        : thumbnailUrl;
 
       listings.push({
         url: fullUrl,
         mobileId,
-        title: title || undefined,
+        title,
         price: price || undefined,
-        thumbnailUrl: thumbnailUrl || undefined,
+        thumbnailUrl: fullThumbnail || undefined,
       });
     });
 
