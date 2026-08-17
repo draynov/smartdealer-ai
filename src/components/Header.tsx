@@ -18,7 +18,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             <Link href="/" className="text-xl font-bold text-gray-900">
               SmartDealer <span className="text-blue-600">AI</span>
             </Link>
@@ -45,6 +45,16 @@ export default function Header() {
               }`}
             >
               Автокъщи / Дилъри
+            </Link>
+            <Link
+              href="/design-extractor"
+              className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                isActive('/design-extractor')
+                  ? 'border-blue-500 text-gray-900'
+                  : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+              }`}
+            >
+              Дизайн Екстрактор
             </Link>
             <Link
               href="/cars"
