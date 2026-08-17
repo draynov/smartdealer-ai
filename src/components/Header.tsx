@@ -44,7 +44,7 @@ export default function Header() {
                   : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
               }`}
             >
-              Dealer обяви
+              Автокъщи / Дилъри
             </Link>
             <Link
               href="/cars"
