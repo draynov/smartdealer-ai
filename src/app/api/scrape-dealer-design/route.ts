@@ -149,10 +149,24 @@ export async function POST(request: NextRequest) {
       dealerName = $('h1').first().text().trim();
     }
 
+    // Extract background color
+    let backgroundColor = '#ffffff'; // Default white
+    const bodyBg = $('body').css('background-color');
+    if (bodyBg && bodyBg !== 'transparent') {
+      backgroundColor = bodyBg;
+    } else {
+      // Try to find background in style tags
+      const bgColorMatch = styleTags.match(/background-color:\s*(#[0-9A-Fa-f]{3,6}|rgb[a]?\([^)]+\))/i);
+      if (bgColorMatch) {
+        backgroundColor = bgColorMatch[1];
+      }
+    }
+
     return NextResponse.json({
       logoUrl,
       primaryColor,
       secondaryColor: secondaryColor || primaryColor,
+      backgroundColor,
       dealerName,
       websiteUrl: url,
       isDarkTheme: primaryColor.toLowerCase() === '#000000' || primaryColor.toLowerCase() === '#000',

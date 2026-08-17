@@ -7,6 +7,7 @@ interface DesignData {
   logoUrl: string;
   primaryColor: string;
   secondaryColor?: string;
+  backgroundColor?: string;
   dealerName: string;
   websiteUrl: string;
   isDarkTheme?: boolean;
@@ -109,7 +110,7 @@ export default function DesignExtractorPage() {
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-2xl font-semibold mb-6">Извлечени елементи</h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Logo */}
                 <div>
                   <h3 className="font-medium text-gray-900 mb-3">Лого</h3>
@@ -157,6 +158,20 @@ export default function DesignExtractorPage() {
                     </div>
                   )}
                 </div>
+
+                {/* Background Color */}
+                {design.backgroundColor && (
+                  <div>
+                    <h3 className="font-medium text-gray-900 mb-3">Фонов цвят</h3>
+                    <div className="border rounded-lg p-4 bg-gray-50">
+                      <div 
+                        className="w-full h-20 rounded mb-2 border"
+                        style={{ backgroundColor: design.backgroundColor }}
+                      ></div>
+                      <p className="text-center font-mono text-sm">{design.backgroundColor}</p>
+                    </div>
+                  </div>
+                )}
 
                 {/* Dealer Name */}
                 <div>
