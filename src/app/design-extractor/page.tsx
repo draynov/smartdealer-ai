@@ -6,8 +6,10 @@ import Link from 'next/link';
 interface DesignData {
   logoUrl: string;
   primaryColor: string;
+  secondaryColor?: string;
   dealerName: string;
   websiteUrl: string;
+  isDarkTheme?: boolean;
 }
 
 export default function DesignExtractorPage() {
@@ -134,11 +136,26 @@ export default function DesignExtractorPage() {
                   <h3 className="font-medium text-gray-900 mb-3">Основен цвят</h3>
                   <div className="border rounded-lg p-4 bg-gray-50">
                     <div 
-                      className="w-full h-20 rounded mb-2"
+                      className="w-full h-20 rounded mb-2 border"
                       style={{ backgroundColor: design.primaryColor }}
                     ></div>
                     <p className="text-center font-mono text-sm">{design.primaryColor}</p>
+                    {design.isDarkTheme && (
+                      <p className="mt-2 text-xs text-orange-600 text-center">
+                        ⚠️ Тъмна тема - може да не е подходящ за UI елементи
+                      </p>
+                    )}
                   </div>
+                  {design.secondaryColor && design.secondaryColor !== design.primaryColor && (
+                    <div className="border rounded-lg p-4 bg-gray-50 mt-3">
+                      <p className="text-xs text-gray-500 mb-2 text-center">Вторичен цвят</p>
+                      <div 
+                        className="w-full h-16 rounded mb-2 border"
+                        style={{ backgroundColor: design.secondaryColor }}
+                      ></div>
+                      <p className="text-center font-mono text-sm">{design.secondaryColor}</p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Dealer Name */}
