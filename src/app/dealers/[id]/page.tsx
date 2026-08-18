@@ -46,6 +46,7 @@ export default function DealerDetailPage({ params }: { params: Promise<{ id: str
   const [importing, setImporting] = useState(false);
   const [importProgress, setImportProgress] = useState({ current: 0, total: 0 });
   const [importError, setImportError] = useState('');
+  const [mobileListingCount, setMobileListingCount] = useState<number | null>(null);
 
   useEffect(() => {
     fetchDealer();
@@ -102,6 +103,9 @@ export default function DealerDetailPage({ params }: { params: Promise<{ id: str
 
       const scrapeData = await scrapeResponse.json();
       const listings = scrapeData.listings || [];
+      
+      // Save Mobile.bg listing count
+      setMobileListingCount(listings.length);
 
       if (listings.length === 0) {
         setImportError('Не са намерени обяви');
@@ -259,29 +263,7 @@ export default function DealerDetailPage({ params }: { params: Promise<{ id: str
                   <p className="font-medium">{dealer.address}</p>
                 </div>
               )}
-
-              {dealer.description && (
-                <div className="mt-4">
-                  <p className="text-sm text-gray-600">Описание</p>
-                  <p className="text-gray-700 mt-1">{dealer.description}</p>
-                </div>
-              )}
             </div>
-
-            {/* Working hours */}
-            {dealer.working_hours && Object.keys(dealer.working_hours).length > 0 && (
-              <div className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Работно време</h2>
-                <div className="space-y-2">
-                  {Object.entries(dealer.working_hours).map(([day, hours]) => (
-                    <div key={day} className="flex justify-between">
-                      <span className="text-gray-700 capitalize">{day}</span>
-                      <span className="font-medium">{hours}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Vehicles */}
             <div className="bg-white rounded-lg shadow p-6">
@@ -344,10 +326,44 @@ export default function DealerDetailPage({ params }: { params: Promise<{ id: str
                 </div>
               )}
             </div>
+
+            {/* Description */}
+            {dealer.description && (
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Описание</h2>
+                <p className="text-gray-700 whitespace-pre-line">{dealer.description}</p>
+              </div>
+            )}
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
+            {/* Working Hours */}
+            {dealer.working_hours && Object.keys(dealer.working_hours).length > 0 && (
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Работно време</h2>
+                <div className="space-y-2">
+                  {Object.entries(dealer.working_hours).map(([day, hours]) => (
+                    <div key={day} className="flex justify-between">
+                      <span className="text-gray-700 capitalize">{day}</span>
+                      <span className="font-medium">{hours}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Mobile.bg Stats */}
+            {mobileListingCount !== null && (
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Mobile.bg</h2>
+                <div>
+                  <p className="text-sm text-gray-600">Брой обяви в Mobile.bg</p>
+                  <p className="text-2xl font-bold text-blue-600">{mobileListingCount}</p>
+                </div>
+              </div>
+            )}
+
             {/* Links */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Линкове</h2>

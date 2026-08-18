@@ -44,6 +44,14 @@ interface Vehicle {
   view_count: number;
   last_edit_at: string;
   created_at: string;
+  dealer_id?: string;
+  dealer?: {
+    id: string;
+    name: string;
+    slug: string;
+    phone: string | null;
+    city: string | null;
+  };
 }
 
 interface VehicleImage {
@@ -80,10 +88,19 @@ export default function CarDetailPage() {
     try {
       setLoading(true);
 
-      // Load vehicle
+      // Load vehicle with dealer info
       const { data: vehicleData, error: vehicleError } = await supabase
         .from('vehicles')
-        .select('*')
+        .select(`
+          *,
+          dealer:dealers(
+            id,
+            name,
+            slug,
+            phone,
+            city
+          )
+        `)
         .eq('id', vehicleId)
         .single();
 
@@ -362,10 +379,19 @@ export default function CarDetailPage() {
                     <p className="font-medium">{vehicle.location}</p>
                   </div>
                 )}
-                {vehicle.seller_name && (
+                {(vehicle.dealer || vehicle.seller_name) && (
                   <div>
                     <p className="text-sm text-gray-500">Продавач</p>
-                    <p className="font-medium">{vehicle.seller_name}</p>
+                    {vehicle.dealer ? (
+                      <Link 
+                        href={`/dealers/${vehicle.dealer.id}`}
+                        className="font-medium text-blue-600 hover:text-blue-800 hover:underline"
+                      >
+                        {vehicle.dealer.name}
+                      </Link>
+                    ) : (
+                      <p className="font-medium">{vehicle.seller_name}</p>
+                    )}
                   </div>
                 )}
                 {vehicle.phone && (
