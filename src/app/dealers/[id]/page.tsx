@@ -223,36 +223,16 @@ export default function DealerDetailPage({ params }: { params: Promise<{ id: str
               )}
 
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-gray-600">Slug</p>
-                  <p className="font-medium">{dealer.slug}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Обяви</p>
-                  <p className="font-medium">{dealer.vehicle_count}</p>
-                </div>
                 {dealer.phone && (
                   <div>
                     <p className="text-sm text-gray-600">Телефон</p>
                     <p className="font-medium">{dealer.phone}</p>
                   </div>
                 )}
-                {dealer.email && (
-                  <div>
-                    <p className="text-sm text-gray-600">Email</p>
-                    <p className="font-medium">{dealer.email}</p>
-                  </div>
-                )}
                 {dealer.city && (
                   <div>
                     <p className="text-sm text-gray-600">Град</p>
                     <p className="font-medium">{dealer.city}</p>
-                  </div>
-                )}
-                {dealer.member_since && (
-                  <div>
-                    <p className="text-sm text-gray-600">В Mobile.bg от</p>
-                    <p className="font-medium">{dealer.member_since} г.</p>
                   </div>
                 )}
               </div>
@@ -364,57 +344,24 @@ export default function DealerDetailPage({ params }: { params: Promise<{ id: str
               </div>
             )}
 
-            {/* Links */}
+            {/* Info */}
             <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Линкове</h2>
-              <div className="space-y-3">
-                {dealer.mobile_profile_url && (
-                  <a
-                    href={dealer.mobile_profile_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block text-blue-600 hover:text-blue-700"
-                  >
-                    Mobile.bg профил →
-                  </a>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Информация</h2>
+              <div className="space-y-3 text-sm">
+                <div>
+                  <p className="text-gray-600">Slug</p>
+                  <p className="font-medium">{dealer.slug}</p>
+                </div>
+                <div>
+                  <p className="text-gray-600">Обяви в базата</p>
+                  <p className="font-medium">{dealer.vehicle_count}</p>
+                </div>
+                {dealer.member_since && (
+                  <div>
+                    <p className="text-gray-600">В Mobile.bg от</p>
+                    <p className="font-medium">{dealer.member_since} г.</p>
+                  </div>
                 )}
-                {dealer.website_url && (
-                  <a
-                    href={dealer.website_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block text-blue-600 hover:text-blue-700"
-                  >
-                    Собствен сайт →
-                  </a>
-                )}
-                {dealer.facebook_url && (
-                  <a
-                    href={dealer.facebook_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block text-blue-600 hover:text-blue-700"
-                  >
-                    Facebook →
-                  </a>
-                )}
-                {dealer.instagram_url && (
-                  <a
-                    href={dealer.instagram_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block text-blue-600 hover:text-blue-700"
-                  >
-                    Instagram →
-                  </a>
-                )}
-              </div>
-            </div>
-
-            {/* Metadata */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Метаданни</h2>
-              <div className="space-y-2 text-sm">
                 <div>
                   <p className="text-gray-600">Създаден</p>
                   <p className="font-medium">{new Date(dealer.created_at).toLocaleDateString('bg-BG')}</p>
@@ -423,8 +370,59 @@ export default function DealerDetailPage({ params }: { params: Promise<{ id: str
                   <p className="text-gray-600">Обновен</p>
                   <p className="font-medium">{new Date(dealer.updated_at).toLocaleDateString('bg-BG')}</p>
                 </div>
+                {dealer.mobile_profile_url && (
+                  <div className="pt-2 border-t border-gray-200">
+                    <a
+                      href={dealer.mobile_profile_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-700 font-medium"
+                    >
+                      Mobile.bg профил →
+                    </a>
+                  </div>
+                )}
               </div>
             </div>
+
+            {/* Links */}
+            {(dealer.website_url || dealer.facebook_url || dealer.instagram_url) && (
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Линкове</h2>
+                <div className="space-y-3">
+                  {dealer.website_url && (
+                    <a
+                      href={dealer.website_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block text-blue-600 hover:text-blue-700"
+                    >
+                      Собствен сайт →
+                    </a>
+                  )}
+                  {dealer.facebook_url && (
+                    <a
+                      href={dealer.facebook_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block text-blue-600 hover:text-blue-700"
+                    >
+                      Facebook →
+                    </a>
+                  )}
+                  {dealer.instagram_url && (
+                    <a
+                      href={dealer.instagram_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block text-blue-600 hover:text-blue-700"
+                    >
+                      Instagram →
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
