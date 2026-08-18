@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { url } = await request.json();
+    const { url, dealer_id } = await request.json();
 
     if (!url || !url.includes('mobile.bg')) {
       return NextResponse.json(
@@ -42,21 +42,25 @@ export async function POST(request: NextRequest) {
 
     const carData = await scrapeResponse.json();
 
-    // Step 2: Get the test dealer (dealer_id = first dealer in DB)
-    const { data: dealers, error: dealerError } = await supabase
-      .from('dealers')
-      .select('id')
-      .limit(1)
-      .single();
+    // Step 2: Use provided dealer_id or fallback to first dealer in DB
+    let dealerId = dealer_id;
+    
+    if (!dealerId) {
+      const { data: dealers, error: dealerError } = await supabase
+        .from('dealers')
+        .select('id')
+        .limit(1)
+        .single();
 
-    if (dealerError || !dealers) {
-      return NextResponse.json(
-        { error: 'No dealer found in database. Please run the SQL schema first.' },
-        { status: 500 }
-      );
+      if (dealerError || !dealers) {
+        return NextResponse.json(
+          { error: 'No dealer found in database. Please run the SQL schema first.' },
+          { status: 500 }
+        );
+      }
+
+      dealerId = dealers.id;
     }
-
-    const dealerId = dealers.id;
 
     // Step 2.5: Fetch all features for lookup
     const { data: allFeatures, error: featuresError } = await supabase
