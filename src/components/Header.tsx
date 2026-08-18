@@ -64,7 +64,7 @@ export default function Header() {
                   : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
               }`}
             >
-              Изтеглени
+              Обяви
             </Link>
             <Link
               href="/dealers"

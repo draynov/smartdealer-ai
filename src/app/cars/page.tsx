@@ -92,11 +92,19 @@ export default function CarsPage() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Изтеглени автомобили</h1>
-          <p className="mt-2 text-gray-600">
-            Общо {vehicles.length} {vehicles.length === 1 ? 'автомобил' : 'автомобила'}
-          </p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Обяви</h1>
+            <p className="mt-2 text-gray-600">
+              Общо {vehicles.length} {vehicles.length === 1 ? 'автомобил' : 'автомобила'}
+            </p>
+          </div>
+          <Link
+            href="/cars/add"
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          >
+            Добави обява
+          </Link>
         </div>
 
         {/* Empty state */}
