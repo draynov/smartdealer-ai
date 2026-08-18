@@ -176,7 +176,7 @@ export default function AddDealerPage() {
                 disabled={scraping}
                 className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors font-medium whitespace-nowrap"
               >
-                {scraping ? 'Зареждане...' : '🔍 Зареди данни'}
+                {scraping ? 'Зареждане...' : 'Зареди данни'}
               </button>
             </div>
             <p className="text-sm text-gray-600 mt-2">
@@ -377,7 +377,7 @@ export default function AddDealerPage() {
               disabled={loading}
               className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors font-medium"
             >
-              {loading ? 'Създаване...' : '💾 Създай дилър'}
+              {loading ? 'Създаване...' : 'Създай дилър'}
             </button>
             <Link
               href="/dealers"

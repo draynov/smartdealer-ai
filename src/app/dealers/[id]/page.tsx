@@ -116,7 +116,7 @@ export default function DealerDetailPage({ params }: { params: Promise<{ id: str
               href={`/dealers/${dealer.id}/edit`}
               className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
             >
-              ✏️ Редактирай
+              Редактирай
             </Link>
           </div>
         </div>

@@ -216,7 +216,7 @@ export default function EditDealerPage({ params }: { params: Promise<{ id: strin
                 disabled={scraping}
                 className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors font-medium"
               >
-                {scraping ? 'Обновяване...' : '🔄 Обнови данните'}
+                {scraping ? 'Обновяване...' : 'Обнови данните'}
               </button>
             </div>
           )}
@@ -401,7 +401,7 @@ export default function EditDealerPage({ params }: { params: Promise<{ id: strin
               disabled={saving}
               className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors font-medium"
             >
-              {saving ? 'Запазване...' : '💾 Запази промените'}
+              {saving ? 'Запазване...' : 'Запази промените'}
             </button>
             <Link
               href={`/dealers/${id}`}
