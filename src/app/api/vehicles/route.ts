@@ -13,9 +13,21 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from('vehicles')
-      .select('id, title, price_eur, price_bgn, year, mileage, fuel_type, source_url')
-      .order('created_at', { ascending: false });
-
+    .select(`
+      id,
+      title,
+      price_eur,
+      price_bgn,
+      year,
+      mileage,
+      fuel_type,
+      power_hp,
+      source_url,
+      vehicle_images (
+        thumbnail_url,
+        position
+      )
+    `)
     if (dealerId) {
       query = query.eq('dealer_id', dealerId);
     }

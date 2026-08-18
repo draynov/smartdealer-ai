@@ -34,7 +34,14 @@ interface Vehicle {
   year: string;
   mileage: string;
   fuel_type: string;
+  power_hp: string;
   source_url: string;
+  vehicle_images?: VehicleImage[];
+}
+
+interface VehicleImage {
+  thumbnail_url: string;
+  position: number;
 }
 
 export default function DealerDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -286,23 +293,50 @@ export default function DealerDetailPage({ params }: { params: Promise<{ id: str
                 <p className="text-gray-600">Няма добавени обяви</p>
               ) : (
                 <div className="space-y-4">
-                  {vehicles.map((vehicle) => (
-                    <Link
-                      key={vehicle.id}
-                      href={`/cars/${vehicle.id}`}
-                      className="block border border-gray-200 rounded-lg p-4 hover:border-blue-500 transition-colors"
-                    >
-                      <h3 className="font-semibold text-gray-900">{vehicle.title}</h3>
-                      <div className="flex gap-4 mt-2 text-sm text-gray-600">
-                        <span>{vehicle.year}</span>
-                        <span>{vehicle.mileage}</span>
-                        <span>{vehicle.fuel_type}</span>
-                      </div>
-                      <p className="text-blue-600 font-semibold mt-2">
-                        {vehicle.price_eur ? `€${vehicle.price_eur.toLocaleString()}` : `${vehicle.price_bgn?.toLocaleString()} лв.`}
-                      </p>
-                    </Link>
-                  ))}
+                  {vehicles.map((vehicle) => {
+                    // Get first image (position = 1 or first in array)
+                    const firstImage = vehicle.vehicle_images?.find(img => img.position === 1) 
+                      || vehicle.vehicle_images?.[0];
+                    const thumbnailUrl = firstImage?.thumbnail_url;
+
+                    return (
+                      <Link
+                        key={vehicle.id}
+                        href={`/cars/${vehicle.id}`}
+                        className="flex gap-4 p-4 bg-white border border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-md transition-all"
+                      >
+                        {/* Image */}
+                        {thumbnailUrl ? (
+                          <div className="flex-shrink-0 w-32 h-24 bg-gray-200 rounded overflow-hidden">
+                            <img
+                              src={`/api/image-proxy?url=${encodeURIComponent(thumbnailUrl)}`}
+                              alt={vehicle.title}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className="flex-shrink-0 w-32 h-24 bg-gray-200 rounded flex items-center justify-center text-gray-400 text-sm">
+                            Без снимка
+                          </div>
+                        )}
+
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-gray-900 text-lg">{vehicle.title}</h3>
+                          <div className="flex gap-4 mt-2 text-sm text-gray-600">
+                            <span>{vehicle.year}</span>
+                            <span>{vehicle.mileage}</span>
+                            {vehicle.fuel_type && vehicle.power_hp && (
+                              <span>{vehicle.fuel_type}, {vehicle.power_hp}</span>
+                            )}
+                          </div>
+                          <p className="text-blue-600 font-bold text-xl mt-3">
+                            {vehicle.price_eur ? `€${vehicle.price_eur.toLocaleString()}` : `${vehicle.price_bgn?.toLocaleString()} лв.`}
+                          </p>
+                        </div>
+                      </Link>
+                    );
+                  })}
                 </div>
               )}
             </div>
