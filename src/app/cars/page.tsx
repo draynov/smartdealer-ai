@@ -128,7 +128,7 @@ export default function CarsPage() {
               >
                 {/* Image */}
                 {thumbnailUrl ? (
-                  <div className="relative h-48 bg-gray-200">
+                  <div className="relative aspect-[4/3] bg-gray-200">
                     <img
                       src={`/api/image-proxy?url=${encodeURIComponent(thumbnailUrl)}`}
                       alt={vehicle.title || `${vehicle.make} ${vehicle.model}`}
@@ -136,7 +136,7 @@ export default function CarsPage() {
                     />
                   </div>
                 ) : (
-                  <div className="bg-gray-200 h-48 flex items-center justify-center text-gray-400">
+                  <div className="bg-gray-200 aspect-[4/3] flex items-center justify-center text-gray-400">
                     Без снимка
                   </div>
                 )}

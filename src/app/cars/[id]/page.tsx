@@ -217,27 +217,31 @@ export default function CarDetailPage() {
                   />
                 </div>
 
-                {/* Thumbnails */}
-                <div className="grid grid-cols-6 gap-2">
-                  {images.map((img) => (
-                    <button
-                      key={img.id}
-                      onClick={() => setSelectedImage(img.large_url)}
-                      className={`aspect-[4/3] bg-gray-100 rounded overflow-hidden hover:opacity-75 transition ${
-                        selectedImage === img.large_url ? 'ring-2 ring-blue-600' : ''
-                      }`}
-                    >
-                      <img
-                        src={`/api/image-proxy?url=${encodeURIComponent(img.thumbnail_url)}`}
-                        alt={`Снимка ${img.position}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  ))}
-                </div>
-                <p className="mt-2 text-sm text-gray-500 text-center">
-                  {images.length} {images.length === 1 ? 'снимка' : 'снимки'}
-                </p>
+                {/* Thumbnails - show only if more than 1 image */}
+                {images.length > 1 && (
+                  <>
+                    <div className="grid grid-cols-6 gap-2">
+                      {images.map((img) => (
+                        <button
+                          key={img.id}
+                          onClick={() => setSelectedImage(img.large_url)}
+                          className={`aspect-[4/3] bg-gray-100 rounded overflow-hidden hover:opacity-75 transition ${
+                            selectedImage === img.large_url ? 'ring-2 ring-blue-600' : ''
+                          }`}
+                        >
+                          <img
+                            src={`/api/image-proxy?url=${encodeURIComponent(img.thumbnail_url)}`}
+                            alt={`Снимка ${img.position}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                    <p className="mt-2 text-sm text-gray-500 text-center">
+                      {images.length} {images.length === 1 ? 'снимка' : 'снимки'}
+                    </p>
+                  </>
+                )}
               </div>
             )}
 
