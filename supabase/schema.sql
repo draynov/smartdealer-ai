@@ -9,14 +9,33 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- ================================================
 CREATE TABLE dealers (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  
+  -- Required fields
   name VARCHAR(255) NOT NULL,
   slug VARCHAR(100) UNIQUE NOT NULL,
+  
+  -- From Mobile.bg
   mobile_profile_url TEXT,
   phone VARCHAR(50),
-  email VARCHAR(255),
   city VARCHAR(100),
+  address TEXT,
+  description TEXT,
   logo_url TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  cover_image_url TEXT,
+  member_since INTEGER,
+  
+  -- Working hours (JSON format)
+  working_hours JSONB,
+  
+  -- Additional info
+  website_url TEXT,
+  email VARCHAR(255),
+  facebook_url TEXT,
+  instagram_url TEXT,
+  
+  -- Metadata
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- ================================================
