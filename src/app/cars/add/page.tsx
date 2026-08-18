@@ -83,6 +83,7 @@ export default function AddCarPage() {
     setError('');
 
     try {
+      // Step 1: Create vehicle
       const response = await fetch('/api/vehicles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -94,7 +95,28 @@ export default function AddCarPage() {
       }
 
       const data = await response.json();
-      router.push(`/cars/${data.id}`);
+      const vehicleId = data.id;
+
+      // Step 2: Upload images if any
+      if (images.length > 0) {
+        const imageFormData = new FormData();
+        imageFormData.append('vehicle_id', vehicleId);
+        
+        images.forEach((image) => {
+          imageFormData.append('images', image);
+        });
+
+        const uploadResponse = await fetch('/api/upload-vehicle-images', {
+          method: 'POST',
+          body: imageFormData,
+        });
+
+        if (!uploadResponse.ok) {
+          console.error('Image upload failed, but vehicle was created');
+        }
+      }
+
+      router.push(`/cars/${vehicleId}`);
     } catch (err: any) {
       setError(err.message || 'Грешка при създаване на обява');
     } finally {
