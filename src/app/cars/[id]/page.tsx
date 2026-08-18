@@ -212,7 +212,7 @@ export default function CarDetailPage() {
                   <img
                     src={`/api/image-proxy?url=${encodeURIComponent(selectedImage || images[0]?.large_url || '')}`}
                     alt={vehicle.title}
-                    className="w-full h-96 object-cover rounded-lg cursor-pointer"
+                    className="w-full aspect-[4/3] object-cover rounded-lg cursor-pointer"
                     onClick={() => setSelectedImage(images[0]?.large_url || '')}
                   />
                 </div>
@@ -223,7 +223,7 @@ export default function CarDetailPage() {
                     <button
                       key={img.id}
                       onClick={() => setSelectedImage(img.large_url)}
-                      className={`aspect-video bg-gray-100 rounded overflow-hidden hover:opacity-75 transition ${
+                      className={`aspect-[4/3] bg-gray-100 rounded overflow-hidden hover:opacity-75 transition ${
                         selectedImage === img.large_url ? 'ring-2 ring-blue-600' : ''
                       }`}
                     >

@@ -307,7 +307,7 @@ export default function DealerDetailPage({ params }: { params: Promise<{ id: str
                       >
                         {/* Image */}
                         {thumbnailUrl ? (
-                          <div className="flex-shrink-0 w-32 h-24 bg-gray-200 rounded overflow-hidden">
+                          <div className="flex-shrink-0 w-32 aspect-[4/3] bg-gray-200 rounded overflow-hidden">
                             <img
                               src={`/api/image-proxy?url=${encodeURIComponent(thumbnailUrl)}`}
                               alt={vehicle.title}
@@ -315,7 +315,7 @@ export default function DealerDetailPage({ params }: { params: Promise<{ id: str
                             />
                           </div>
                         ) : (
-                          <div className="flex-shrink-0 w-32 h-24 bg-gray-200 rounded flex items-center justify-center text-gray-400 text-sm">
+                          <div className="flex-shrink-0 w-32 aspect-[4/3] bg-gray-200 rounded flex items-center justify-center text-gray-400 text-sm">
                             Без снимка
                           </div>
                         )}
