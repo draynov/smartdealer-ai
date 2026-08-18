@@ -43,6 +43,9 @@ export default function DealerDetailPage({ params }: { params: Promise<{ id: str
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [importing, setImporting] = useState(false);
+  const [importProgress, setImportProgress] = useState({ current: 0, total: 0 });
+  const [importError, setImportError] = useState('');
 
   useEffect(() => {
     fetchDealer();
@@ -72,6 +75,85 @@ export default function DealerDetailPage({ params }: { params: Promise<{ id: str
       }
     } catch (err) {
       console.error('Error fetching vehicles:', err);
+    }
+  };
+
+  const handleImportListings = async () => {
+    if (!dealer?.mobile_profile_url) {
+      setImportError('Дилърът няма Mobile.bg профил URL');
+      return;
+    }
+
+    setImporting(true);
+    setImportError('');
+    setImportProgress({ current: 0, total: 0 });
+
+    try {
+      // Step 1: Scrape listings from Mobile.bg
+      const scrapeResponse = await fetch('/api/scrape-dealer-listing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dealerUrl: dealer.mobile_profile_url }),
+      });
+
+      if (!scrapeResponse.ok) {
+        throw new Error('Грешка при изтегляне на обяви от Mobile.bg');
+      }
+
+      const scrapeData = await scrapeResponse.json();
+      const listings = scrapeData.listings || [];
+
+      if (listings.length === 0) {
+        setImportError('Не са намерени обяви');
+        setImporting(false);
+        return;
+      }
+
+      setImportProgress({ current: 0, total: listings.length });
+
+      // Step 2: Import each listing
+      let successCount = 0;
+      let errorCount = 0;
+
+      for (let i = 0; i < listings.length; i++) {
+        const listing = listings[i];
+        
+        try {
+          const importResponse = await fetch('/api/import-vehicle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              url: listing.url,
+              dealer_id: id 
+            }),
+          });
+
+          if (importResponse.ok) {
+            successCount++;
+          } else {
+            errorCount++;
+          }
+        } catch (err) {
+          errorCount++;
+          console.error('Error importing listing:', listing.url, err);
+        }
+
+        setImportProgress({ current: i + 1, total: listings.length });
+      }
+
+      // Refresh vehicle list
+      await fetchVehicles();
+      await fetchDealer();
+
+      if (errorCount > 0) {
+        setImportError(`Импортирани ${successCount} от ${listings.length} обяви (${errorCount} грешки)`);
+      }
+
+    } catch (err: any) {
+      setImportError(err.message || 'Грешка при импортиране на обяви');
+      console.error(err);
+    } finally {
+      setImporting(false);
     }
   };
 
@@ -203,9 +285,41 @@ export default function DealerDetailPage({ params }: { params: Promise<{ id: str
 
             {/* Vehicles */}
             <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                Обяви ({dealer.vehicle_count})
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Обяви ({dealer.vehicle_count})
+                </h2>
+                {dealer.mobile_profile_url && (
+                  <button
+                    onClick={handleImportListings}
+                    disabled={importing}
+                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:bg-gray-400 transition-colors text-sm font-medium"
+                  >
+                    {importing ? 'Импортиране...' : 'Изтегли обяви'}
+                  </button>
+                )}
+              </div>
+
+              {importing && (
+                <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-sm text-blue-800 mb-2">
+                    Импортиране {importProgress.current} от {importProgress.total}...
+                  </p>
+                  <div className="w-full bg-blue-200 rounded-full h-2">
+                    <div 
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${(importProgress.current / importProgress.total) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {importError && (
+                <div className="mb-4 bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg text-sm">
+                  {importError}
+                </div>
+              )}
+
               {vehicles.length === 0 ? (
                 <p className="text-gray-600">Няма добавени обяви</p>
               ) : (

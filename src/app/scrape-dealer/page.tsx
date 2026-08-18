@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 interface CarListing {
@@ -19,11 +19,36 @@ interface ScrapeResult {
   listings: CarListing[];
 }
 
+interface Dealer {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 export default function ScrapeDealerPage() {
   const [dealerUrl, setDealerUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState<ScrapeResult | null>(null);
+  const [dealers, setDealers] = useState<Dealer[]>([]);
+  const [selectedDealerId, setSelectedDealerId] = useState<string>('');
+  const [importing, setImporting] = useState(false);
+
+  useEffect(() => {
+    fetchDealers();
+  }, []);
+
+  const fetchDealers = async () => {
+    try {
+      const response = await fetch('/api/dealers');
+      if (response.ok) {
+        const data = await response.json();
+        setDealers(data);
+      }
+    } catch (err) {
+      console.error('Error fetching dealers:', err);
+    }
+  };
 
   const handleScrape = async () => {
     if (!dealerUrl.trim()) {
